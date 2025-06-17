@@ -1,0 +1,99 @@
+[project]
+name = "phd_defense_timdarcet"
+version = "0.1.0"
+description = "Code for my phd defense presentation support"
+authors = [{ name = "Timothée Darcet", email = "timothee.darcet@gmail.com" }]
+requires-python = "==3.10.12"
+readme = "README.md"
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "manim-slides[pyside6-full,manimgl]>=5.5.1",
+    "pyopengl>=3.1.9",
+    "ty>=0.0.1a5",
+    "setuptools",
+]
+
+
+[tool.pyright]
+include = ["."]
+venvPath = "."
+venv = ".venv"
+exclude = [".venv", ".pytype"]
+typeCheckingMode = "standard"
+pythonVersion = "3.11"
+pythonPlatform = "Linux"
+
+[tool.ruff]
+line-length = 120
+fix = true
+exclude = [".venv", ".pytype"]
+
+[tool.ruff.lint]
+select = [
+    "F",
+    "E",
+    "W",
+    # "C90",
+    "I",
+    "N",
+    "UP",
+    "YTT",
+    "B",
+    "A",
+    "COM",
+    "C4",
+    # "DTZ",
+    "SIM",
+    "Q",
+    "RUF100",
+    "PTH",
+    # "TD",
+    "FIX",
+    "ERA",
+    "PD",
+    "PGH",
+    "PL",
+    "TRY",
+    "FLY",
+    "NPY",
+    "FAST",
+    "AIR",
+    "PERF",
+    "FURB",
+    # "DOC",
+    "RUF",
+]
+ignore = [
+    "ERA001",
+    "F722",
+    "F401",
+    "N803",
+    "N812",
+    "N802",
+    "N807",
+    "N805",
+    "N806",
+    "PLR0913",
+    "PLW2901",
+    "PLR2004",
+    "TRY003",
+    "NPY002",
+    "PLR0915",
+    "PLR0912",
+    "PLW0603",
+    "PGH003",
+    "PD011",
+    "COM812",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["E402"]
+
+
+[tool.ty.src]
+root = "."

@@ -1,0 +1,44 @@
+{
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+        },
+        {
+            "name": "manim-slides render",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/.venv/bin/manim-slides",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "render",
+                "manim_presentation.py",
+                "MainSlide",
+                "-q",
+                "l",
+            ],
+        },
+        {
+            "name": "manim-slides present",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/.venv/bin/manim-slides",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "present",
+                "--next-terminates-loop",
+                "--full-screen",
+                "MainSlide",
+            ],
+        },
+    ]
+}
