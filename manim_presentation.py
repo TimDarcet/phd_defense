@@ -767,11 +767,11 @@ class MainSlide(Slide):
         self.play(ShowCreation(secondary_papers_box), lag_ratio=0.5)
         self.next_slide()
         ## Focus presented papers
-        reg_title = Text("Registers", **title_text_kws).move_to(main_papers_text[2])
-        capi_title = Text("CAPI", **title_text_kws).move_to(main_papers_text[4]).center()
+        reg_title = Text("Registers", **body_text_kws).move_to(main_papers_text[2], aligned_edge=LEFT)
+        capi_title = Text("CAPI", **body_text_kws).move_to(main_papers_text[4], aligned_edge=LEFT)
 
         self.play(*(FadeOut(mob) for mob in main_papers_text[:2] + secondary_papers_text))
-        self.play(*(FadeOut(mob) for mob in main_papers_text[3::2]))
-        self.play(FadeOut(secondary_papers_box), FadeOut(main_papers_box))
+        # self.play(*(FadeOut(mob) for mob in main_papers_text[3::2]))
+        # self.play(FadeOut(secondary_papers_box), FadeOut(main_papers_box))
         self.play(Transform(main_papers_text[2], reg_title), Transform(main_papers_text[4], capi_title))
         self.next_slide()
