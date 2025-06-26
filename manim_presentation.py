@@ -668,10 +668,23 @@ sub_text_kws = {
 }
 
 
+def detour_image(p, thresh=0.8):
+    img = Image.open(p)
+    detoured = Image.fromarray(
+        np.where(
+            np.prod(np.array(img) / 255, axis=2)[:, :, None] < thresh,
+            np.array(img),
+            np.array((0, 0, 0, 0), dtype=np.uint8),
+        )
+    )
+    detoured.save(p + ".detoured.png")
+    return p + ".detoured.png"
+
+
 class MainSlide(Slide):
     def construct(self):
         # Set background color to beige
-        self.camera.background_rgba = [*list(Color("#F5F1DC").rgb), 1.0]
+        self.camera.background_rgba = [*list(Color("#FAF8EE").rgb), 1.0]
         ## eg slide
         self.play(*(FadeOut(mob) for mob in self.mobjects))
         # blabla
@@ -744,7 +757,6 @@ class MainSlide(Slide):
                 width=max(main_papers_text.get_width(), secondary_papers_text.get_width()) + 0.5,
                 # width=main_papers_text.get_width() + 0.5,
                 height=main_papers_text.get_height() + 0.5,
-                color="#333333",
             )
             .move_to(main_papers_text, aligned_edge=LEFT)
             .shift(LEFT * 0.25)
@@ -755,7 +767,6 @@ class MainSlide(Slide):
                 width=main_papers_box.get_width(),
                 # width=secondary_papers_text.get_width() + 0.5,
                 height=secondary_papers_text.get_height() + 0.5,
-                color="#333333",
             )
             .move_to(secondary_papers_text)
             .flip()
@@ -775,3 +786,490 @@ class MainSlide(Slide):
         # self.play(FadeOut(secondary_papers_box), FadeOut(main_papers_box))
         self.play(Transform(main_papers_text[2], reg_title), Transform(main_papers_text[4], capi_title))
         self.next_slide()
+        ## Registers: title
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Vision transformers need registers", **title_text_kws).shift(UP)))
+        self.play(
+            Write(
+                Text("Timothée Darcet, Maxime Oquab, Julien Mairal, Piotr Bojanowski", **sub_text_kws).shift(2 * DOWN)
+            )
+        )
+        ## Primer: Vision transformer (ViT)
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Primer: Vision transformer (ViT)", **title_text_kws).to_edge(UP)))
+        self.play(
+            Write(
+                VGroup(
+                    Text("Simple and SOTA vision arch", **body_text_kws),
+                    Text("Tokenizer = patchifier + linear", **body_text_kws),
+                    Text("Use [CLS] token for output", **body_text_kws),
+                )
+                .arrange(DOWN, aligned_edge=LEFT, buff=1)
+                .to_edge(LEFT)
+            )
+        )
+        self.play(FadeIn(ImageMobject(detour_image("resources/ViT_diagram.png")).scale(1.3).to_edge(RIGHT)))
+        self.play(
+            Write(
+                Text(
+                    'Dosovitskiy et al. "An Image is Worth 16x16 Words: '
+                    + 'Transformers for Image Recognition at Scale" ICLR 2020',
+                    **sub_text_kws,
+                ).to_edge(DR)
+            )
+        )
+        ## Primer: attention maps
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Primer: attention maps", **title_text_kws).to_edge(UP)))
+        self_attn_blk = VGroup(
+            Rectangle(
+                width=4,
+                height=0.6,
+            )
+            .to_edge(RIGHT)
+            .flip()
+        )
+        self_attn_blk.add(Text("Self-attention", **body_text_kws).move_to(self_attn_blk))
+        self_attn_blk[0].set_fill(BLUE_A).set_opacity(1)
+        token = VGroup(Rectangle(width=0.25, height=0.25, color="#000000").set_fill("#ffffff"))
+        token.add(token[0].copy().shift(0.25 * UP))
+        token.add(token[0].copy().shift(0.25 * DOWN))
+        token.add(token[0].copy().shift(0.5 * DOWN))
+        num_patches = 4
+        tok_spacing = self_attn_blk.get_width() * RIGHT / (num_patches + 1)
+        token.move_to(self_attn_blk.get_corner(UL), aligned_edge=DOWN).shift(tok_spacing * 0.5).shift(0.5 * UP)
+        token.set_fill(GREEN_A).set_opacity(1)
+        output_tokens = VGroup(token)
+        for i in range(1, num_patches + 1):
+            output_tokens.add(token.copy().shift(i * tok_spacing))
+        imsize = 256
+        side = 3
+        pil_img = Image.open("resources/newjtx.jpg")
+        w, h = pil_img.size
+        pil_img = pil_img.resize((imsize, imsize), box=((w - h) / 2, 0, w - (w - h) / 2, h))
+        patches = Group()
+        for i in range(side):
+            for j in range(side):
+                # Crop the image into patches
+                pil_img.crop(
+                    (
+                        i * imsize // side,
+                        j * imsize // side,
+                        (i + 1) * imsize // side,
+                        (j + 1) * imsize // side,
+                    )
+                ).save(f"tmp/patch_{i}_{j}.png")
+                patches.add(ImageMobject(f"tmp/patch_{i}_{j}.png").set_width(0.1).set_opacity(0))
+        self.add(patches)
+        permutation = np.argsort(np.random.rand(side**2))
+        input_tokens = output_tokens.copy().shift((self_attn_blk.get_height() + 2) * DOWN)
+        input_meanings = Group(
+            Text("[CLS]", **body_text_kws).next_to(input_tokens[0], DOWN).shift(0.125 * DOWN),
+            *(
+                patches[permutation[i]].set_width(0.5).set_opacity(1).next_to(input_tokens[1 + i], DOWN)
+                for i in range(num_patches)
+            ),
+        )
+        permutation = np.concatenate(([0], permutation + 1))
+        output_meanings = input_meanings.copy().next_to(output_tokens, UP)
+        attention_lines = VGroup(
+            *(
+                VGroup(
+                    *(
+                        Line(
+                            input_tokens[i].get_top(),
+                            output_tokens[j].get_bottom(),
+                            color=RED_A,
+                            stroke_width=4,
+                        )
+                        for i in range(num_patches + 1)
+                    )
+                )
+                for j in range(num_patches + 1)
+            )
+        )
+        attention_lines.set_z_index(-1000)
+        attn_mat = np.exp(np.eye(side**2 + 1) * 1 + np.random.randn(side**2 + 1, side**2 + 1) * 1)
+        attn_mat = attn_mat / attn_mat.sum(axis=1, keepdims=True)
+        attn_mat **= 0.5
+        blk_diagram = Group(input_tokens, self_attn_blk, output_tokens, output_meanings, input_meanings)
+        # self.add(input_tokens, self_attn_blk, output_tokens, output_meanings, input_meanings, attention_lines)
+        self.play(ShowCreation(blk_diagram))
+        ## attention lines
+        recipe = VGroup(
+            Text("- Compute the attention scores from [CLS]to patches", **body_text_kws),
+            Text("- Reshape into a heatmap", **body_text_kws),
+            Text("- Get an interpretable map of where the [CLS]token is “looking”", **body_text_kws),
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.4)
+        slide_text = (
+            VGroup(
+                Text("At every layer, each token attends to each token", **body_text_kws),
+                Text("Attention map recipe:", **body_text_kws),
+                recipe,
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+            .to_edge(LEFT)
+        )
+        slide_text[-1].shift(0.1 * RIGHT)
+        self.next_slide()
+        self.play(
+            ShowCreation(attention_lines),
+            Write(slide_text[0]),
+        )
+        ## Focus CLS-->patches
+        self.play(Write(slide_text[1]))
+
+        normalizer = attn_mat[0, 1:].max()
+        self.play(
+            FadeOut(output_tokens[1:]),
+            FadeOut(output_meanings[1:]),
+            FadeOut(input_tokens[0]),
+            FadeOut(input_meanings[0]),
+            FadeOut(attention_lines[1:]),
+            FadeOut(attention_lines[0][0]),
+            *(
+                attention_lines[i][j].animate().set_stroke(opacity=attn_mat[i, j] / normalizer)
+                for i in range(1)
+                for j in range(1, num_patches + 1)
+            ),
+        )
+        self.play(Write(recipe[0]))
+        ## Cleanup
+        # self.remove(*(mob for mob in self.mobjects))
+        ## Primer: reshape
+        self.next_slide()
+        self.play(FadeOut(input_tokens[1:]))
+        self.play(
+            # FadeInStay(patches),
+            *(
+                patches[i * side + j]
+                .animate()
+                .set_width(1)
+                .set_opacity(1)
+                .move_to(
+                    blk_diagram.get_bottom() + 1.5 * UP + 0.5 * RIGHT + (side / 2 - 0.5) * LEFT + i * RIGHT + j * DOWN
+                )
+                if patches[i * side + j].get_width() > 0.25
+                else patches[i * side + j]
+                .move_to(
+                    blk_diagram.get_bottom() + 1.5 * UP + 0.5 * RIGHT + (side / 2 - 0.5) * LEFT + i * RIGHT + j * DOWN
+                )
+                .animate()
+                .set_width(1)
+                .set_opacity(1)
+                for j in range(side)
+                for i in range(side)
+            ),
+        )
+        self.play(Write(recipe[1]))
+        ## Move CLS
+        cls_tok = VGroup(output_tokens[0], output_meanings[0])
+        patches.set_z_index(-30)
+        attention_lines.set_z_index(-20)
+        lines_end = (
+            patches[side // 2].get_left()
+            + 0.25 * LEFT
+            + cls_tok.get_width() / 2 * LEFT
+            + cls_tok.get_height() / 2 * DOWN
+        )
+        self.play(
+            cls_tok.animate().next_to(patches[side // 2], LEFT, buff=0.25),
+            *(
+                attention_lines[i][j]
+                .animate()
+                .put_start_and_end_on(
+                    patches[i * side + j].get_center(),
+                    lines_end,
+                )
+                for i in range(1)
+                for j in range(1, num_patches + 1)
+            ),
+            FadeOut(self_attn_blk),
+        )
+        ## Draw all attn lines
+        image_attn_lines = VGroup(
+            *(
+                Line(
+                    patches[i * side + j].get_center(),
+                    lines_end,
+                    color=RED_A,
+                    stroke_width=4,
+                )
+                .set_z_index(-10)
+                .set_opacity(attn_mat[0, i * side + j + 1] / normalizer)
+                for i in range(side)
+                for j in range(side)
+            )
+        )
+        self.play(
+            FadeOut(attention_lines[0][1:]),
+            FadeIn(image_attn_lines),
+        )
+        ## Show attn map
+        attmap = VGroup(
+            *(
+                Rectangle(1, 1, color=RED_A)
+                .move_to(patches[i * side + j])
+                .set_z_index(-10)
+                .set_stroke(width=0)
+                .set_opacity(attn_mat[0, i * side + j + 1] / normalizer)
+                for i in range(side)
+                for j in range(side)
+            )
+        )
+        self.play(
+            FadeOut(image_attn_lines),
+            FadeIn(attmap),
+        )
+        self.play(Write(recipe[2]))
+        self.play(
+            FadeOut(cls_tok),
+            attmap.animate.move_to(ORIGIN, coor_mask=[0, 1, 0]),
+            patches.animate.move_to(ORIGIN, coor_mask=[0, 1, 0]),
+        )
+        ## The artifacts
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("The artifacts", **title_text_kws).to_edge(UP)))
+        self.play(FadeIn(ImageMobject(detour_image("resources/yeet_attmaps.png")).scale(0.7).to_edge(DR)))
+        self.play(
+            Write(
+                VGroup(
+                    Text("Attention maps of ViTs have artifacts", **body_text_kws),
+                    Text("Except DINO", **body_text_kws),
+                    Text("But DINOv2 has them", **body_text_kws),
+                    Text("?????", **title_text_kws),  # "???" meme?
+                )
+                .arrange(DOWN, aligned_edge=LEFT, buff=1)
+                .to_edge(LEFT)
+            )
+        )
+        ## The norm outliers
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("The norm outliers", **title_text_kws).to_edge(UP)))
+        self.play(
+            Write(
+                VGroup(
+                    Text("Let's study DINOv2", **body_text_kws),
+                    Text("We will need a criterion to say “is this token an artifact or not?”", **body_text_kws),
+                    Text("We find a simple criterion: high norm", **body_text_kws),
+                )
+                .arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+                .shift(UP)
+                .to_edge(LEFT)
+            )
+        )
+        self.play(FadeIn(ImageMobject(detour_image("resources/high_norms.png")).scale(0.7).to_edge(DR)))
+        ## Where do those outliers appear?
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("When do those outliers appear?", **title_text_kws).to_edge(UP)))
+        plot_1 = ImageMobject(detour_image("resources/norm_along_layers.png")).scale(0.7).to_edge(DL).shift(UP)
+        caption_1 = (
+            Text("In the ViT?\nAt layer >= 15", **body_text_kws, alignment="CENTER")
+            .next_to(plot_1, UP)
+            .shift(0.1 * LEFT)
+        )
+        self.play(Write(caption_1), FadeIn(plot_1))
+
+        self.next_slide()
+        plot_2 = ImageMobject(detour_image("resources/norm_along_iters.png")).scale(0.7).to_edge(DOWN).shift(UP)
+        caption_2 = (
+            Text("In the training?\nAround 150k iter", **body_text_kws, alignment="CENTER")
+            .next_to(plot_2, UP)
+            .shift(0.1 * LEFT)
+        )
+        self.play(Write(caption_2), FadeIn(plot_2))
+
+        self.next_slide()
+        plot_3 = ImageMobject(detour_image("resources/norm_along_iters.png")).scale(0.7).to_edge(DR).shift(UP)
+        caption_3 = (
+            Text("In which models?\n>= 300M parameters (ViT-L)", **body_text_kws, alignment="CENTER")
+            .next_to(plot_3, UP)
+            .shift(0.1 * LEFT)
+        )
+        self.play(Write(caption_3), FadeIn(plot_3))
+        ## Where do those outliers appear?
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Where do those outliers appear?", **title_text_kws).to_edge(UP)))
+        examples = ImageMobject(detour_image("resources/small_attmap.png")).to_edge(RIGHT).shift(UP)
+        cos_sim_plot = ImageMobject(detour_image("resources/cosine_similarities.png"))
+        self.play(FadeIn(examples))
+        caption = (
+            VGroup(
+                Text("On patches that hold redundant information:", **body_text_kws),
+                Text("ie patches that are very similar to their neighbors", **body_text_kws),
+                Text("In practice: often background", **body_text_kws),
+                Text("→ The model can discard this info without hurting representations", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT)
+            .to_edge(LEFT)
+            .shift(UP)
+        )
+        self.play(Write(caption))
+        self.play(FadeIn(cos_sim_plot.scale(1).next_to(caption, DOWN)))
+        self.next_slide()
+        ## What information do the high-norm tokens hold?
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(title := Text("What information do the high-norm tokens hold?", **title_text_kws).to_edge(UP)))
+        self.play(Write(Text("(Compared to other patches)", **body_text_kws).next_to(title, DOWN)))
+        self.play(
+            Write(
+                caption_1 := VGroup(
+                    Text("Less local information", **body_text_kws, t2c={"Less": RED}),
+                    Text("→ Model did discard this info!", **body_text_kws, t2c={"did": RED}),
+                )
+                .arrange(DOWN, aligned_edge=LEFT)
+                .next_to(title, DOWN, aligned_edge=LEFT, buff=2)
+            )
+        )
+        self.play(
+            FadeIn(
+                table_1 := ImageMobject(detour_image("resources/local_info_probing.png"))
+                .scale(0.4)
+                .next_to(caption_1, DOWN, aligned_edge=LEFT, buff=1.5)
+            )
+        )
+        self.next_slide()
+        self.play(
+            FadeIn(
+                table_2 := ImageMobject(detour_image("resources/global_info_probing.png"))
+                .scale(0.4)
+                .to_edge(RIGHT)
+                .move_to(caption_1, coor_mask=[0, 1, 0])
+            )
+        )
+        self.play(
+            Write(
+                VGroup(
+                    Text("More global information", **body_text_kws, t2c={"More": RED}),
+                    Text(
+                        "→ These tokens are global information aggregators",
+                        **body_text_kws,
+                        t2c={"global information aggregators": RED},
+                    ),
+                )
+                .arrange(DOWN, aligned_edge=RIGHT)
+                .next_to(table_2, DOWN, aligned_edge=RIGHT)
+                .move_to(table_1, coor_mask=[0, 1, 0])
+            )
+        )
+        self.next_slide()
+        ## The hypothesis
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        # self.play(Write(Text("The hypothesis", **title_text_kws).to_edge(UP)))
+        self.play(
+            Write(
+                hypothesis := VGroup(
+                    Text("Large, sufficiently trained models", **title_text_kws),
+                    Text("learn to recognize redundant tokens", **title_text_kws),
+                    Text("and to use them as places to store, process", **title_text_kws),
+                    Text("and retrieve global information", **title_text_kws),
+                )
+                .arrange(DOWN)
+                .center()
+            )
+        )
+        self.play(
+            ShowCreation(
+                Rectangle(
+                    width=hypothesis.get_width() + 1,
+                    height=hypothesis.get_height() + 1,
+                )
+                .set_stroke(BLACK, width=10)
+                .move_to(hypothesis),
+                run_time=2,
+            )
+        )
+        ## The fix: Registers
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("The fix: Registers", **title_text_kws).to_edge(UP)))
+        self.play(
+            Write(
+                VGroup(
+                    Text('Register := "useless token"', **body_text_kws),
+                    Text("Input: learnable value (like [CLS])", **body_text_kws),
+                    Text("Output: unused", **body_text_kws),
+                    Text("They interact with other tokens through self-attention", **body_text_kws),
+                )
+                .arrange(DOWN, aligned_edge=LEFT, buff=0.3)
+                .to_edge(LEFT)
+                .shift(UP * 1.5)
+            )
+        )
+        self.play(FadeIn(ImageMobject(detour_image("resources/registers_diagram.png")).scale(1).to_edge(DOWN)))
+        ## Does it work? (yes)
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Does it work?", **title_text_kws).to_edge(UP)))
+        self.play(
+            Write(
+                caption := VGroup(
+                    Text("Yes, it does!", **body_text_kws),
+                    Text("We can train a model with registers", **body_text_kws),
+                    Text("It has no artifacts", **body_text_kws),
+                    Text("It has better representations", **body_text_kws),
+                )
+                .arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+                .to_edge(LEFT)
+                .shift(UP * 1)
+            )
+        )
+        self.play(
+            FadeIn(
+                ImageMobject(detour_image("resources/pyrrhus_reg_before_after.png"))
+                .scale(0.7)
+                .to_edge(RIGHT)
+                .move_to(caption, coor_mask=[0, 1, 0])
+            )
+        )
+        self.play(FadeIn(ImageMobject(detour_image("resources/n_reg_score_curves.png")).scale(0.7).to_edge(DOWN)))
+        ## What about supervised? And CLIP?
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(title := Text("What about supervised? And CLIP?", **title_text_kws).to_edge(UP)))
+        caption = (
+            VGroup(
+                Text("It works too!", **body_text_kws),
+                Text("Removes norm outliers", **body_text_kws),
+                Text("Cleans up attention maps", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+            .to_edge(LEFT)
+            .shift(UP * 1)
+        )
+        self.play(Write(caption[0:2]))
+        self.play(
+            FadeIn(
+                ImageMobject(detour_image("resources/norm_stripplots_before_after.png"))
+                .scale(0.5)
+                .to_edge(RIGHT)
+                .next_to(caption, coor_mask=[0, 1, 0])
+            )
+        )
+        self.next_slide()
+        self.play(Write(caption[2:]))
+        self.play(FadeIn(ImageMobject(detour_image("resources/pullfig_registers.png")).scale(0.9).to_edge(DOWN)))
+        ## Bonus: attention maps of registers
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Bonus: attention maps of registers", **title_text_kws).to_edge(UP)))
+        reg_attmaps = ImageMobject(detour_image("resources/registers_attmaps.png")).scale(0.6).to_edge(DOWN)
+        caption = VGroup(
+            Text(
+                "We can also visualize the attention from the registers to the patches",
+                **body_text_kws,
+                text2slant={"registers": "ITALIC"},
+            ),
+            Text("In some cases, different registers attend to different parts of the image", **body_text_kws),
+            Text('Reminiscent of "slot attention" (Locatello et al. 2020)', **body_text_kws),
+        ).arrange(DOWN, aligned_edge=LEFT)
+        Group(caption, reg_attmaps).arrange(DOWN, aligned_edge=LEFT, buff=0.5).center()
+        self.play(Write(caption))
+        self.play(FadeIn(reg_attmaps))

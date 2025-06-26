@@ -16,6 +16,10 @@ dependencies = [
     "pyopengl>=3.1.9",
     "ty>=0.0.1a5",
     "setuptools",
+    "ipykernel",
+    "ipywidgets",
+    "pillow",
+    "numpy",
 ]
 
 
