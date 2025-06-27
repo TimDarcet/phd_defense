@@ -1609,7 +1609,7 @@ class MainSlide(Slide):
         self.next_slide()
         dbot_diagram_3 = ImageMobject(detour_image("resources/dbot_diagram_3.png")).move_to(dbot_diagram)
         self.play(Transform(dbot_diagram, dbot_diagram_3))
-        self.play(Write(Text("→ Let’s just make this online: use an EMA", **body_text_kws).to_edge(DOWN)))
+        self.play(Write(Text("→ Let's just make this online: use an EMA", **body_text_kws).to_edge(DOWN)))
         ## 1. Target representation: (c) online model
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
@@ -1694,3 +1694,41 @@ class MainSlide(Slide):
         self.next_slide()
         self.play(Write(left_content[7:]))
         # TODO maybe discuss DINO == clustering
+        ## 2. Loss formulation: (c) loss after clustering
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("2. Loss formulation: (c) loss after clustering", **title_text_kws).to_edge(UP)))
+
+        # Main proposition
+        proposition = Text("Proposition: explicitly use a clustering!", **body_text_kws, color=BLUE).shift(UP * 2)
+
+        # Left side bullet points
+        left_content = (
+            VGroup(
+                Text("- It's the original idea of the MLP head", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text('- "Debuggable"', **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("- Only apply the clustering on the targets, and the", **body_text_kws),
+                Text("  prediction is projected through a learnable head", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.3)
+            .to_edge(LEFT)
+            .shift(DOWN * 0.5)
+        )
+
+        # Right side diagram
+        diagram = ImageMobject(detour_image("resources/loss_after_clustering.png")).scale(1).to_edge(DR)
+
+        # Animations
+        self.play(Write(proposition))
+
+        self.next_slide()
+        self.play(Write(left_content[0]))
+
+        self.next_slide()
+        self.play(Write(left_content[1:3]))
+
+        self.next_slide()
+        self.play(Write(left_content[3:]))
+        self.play(FadeIn(diagram))
