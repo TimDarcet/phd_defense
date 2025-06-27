@@ -376,7 +376,6 @@ from manimlib import (
     Title,
     Torus,
     TracedPath,
-    TracingTail,
     Transform,
     TransformFromCopy,
     TransformMatchingParts,
@@ -657,14 +656,17 @@ from manimlib import (
 title_text_kws = {
     "font_size": 48,
     "fill_color": "#333333",  # Dark grey color
+    "stroke_color": BLACK,
 }
 body_text_kws = {
     "font_size": 24,
     "fill_color": "#333333",  # Dark grey color
+    "stroke_color": BLACK,
 }
 sub_text_kws = {
     "font_size": 16,
     "fill_color": "#888888",  # Dark grey color
+    "stroke_color": BLACK,
 }
 
 
@@ -785,8 +787,8 @@ class MainSlide(Slide):
         # self.play(*(FadeOut(mob) for mob in main_papers_text[3::2]))
         # self.play(FadeOut(secondary_papers_box), FadeOut(main_papers_box))
         self.play(Transform(main_papers_text[2], reg_title), Transform(main_papers_text[4], capi_title))
-        self.next_slide()
         ## Registers: title
+        self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
         self.play(Write(Text("Vision transformers need registers", **title_text_kws).shift(UP)))
         self.play(
@@ -1273,3 +1275,219 @@ class MainSlide(Slide):
         Group(caption, reg_attmaps).arrange(DOWN, aligned_edge=LEFT, buff=0.5).center()
         self.play(Write(caption))
         self.play(FadeIn(reg_attmaps))
+        ## CAPI: title
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(
+            Write(
+                Text(
+                    "Cluster and Predict Latent Patches for\nImproved Masked Image Modeling",
+                    **title_text_kws,
+                    alignment="CENTER",
+                ).shift(UP)
+            )
+        )
+        self.play(
+            Write(
+                Text(
+                    "Timothée Darcet, Federico Baldassarre, Maxime Oquab, Julien Mairal, Piotr Bojanowski",
+                    **sub_text_kws,
+                ).shift(2 * DOWN)
+            )
+        )
+        ## SSL for visual representations works!
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("SSL for visual representations works!", **title_text_kws).to_edge(UP)))
+
+        # Left side content
+        left_content = (
+            VGroup(
+                Text("Annotation-scarce domains:", **body_text_kws),
+                Text("- Medical", **body_text_kws).shift(0.5 * RIGHT),
+                Text("- Satellite", **body_text_kws).shift(0.5 * RIGHT),
+                Text("- Rare plants", **body_text_kws).shift(0.5 * RIGHT),
+                Text("- Biology", **body_text_kws).shift(0.5 * RIGHT),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("Local / geometric understanding:", **body_text_kws),
+                Text("- Depth estimation", **body_text_kws).shift(0.5 * RIGHT),
+                Text("- Point tracking", **body_text_kws).shift(0.5 * RIGHT),
+                Text("- Neural feature fields", **body_text_kws).shift(0.5 * RIGHT),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.3)
+            .to_edge(LEFT)
+            .shift(DOWN * 0.5)
+        )
+        self.play(Write(left_content))
+        self.play(
+            FadeIn(
+                ImageMobject(detour_image("resources/dinov2_application_examples.png"))
+                .scale(1.5)
+                .to_edge(RIGHT)
+                .shift(DOWN * 0.5)
+            )
+        )
+        ## But: DINOv2 limitations
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("But:", **title_text_kws).to_edge(UP).to_edge(LEFT)))
+
+        # Left side bullet points
+        left_content = (
+            VGroup(
+                Text("- DINOv2 is complex", **body_text_kws),
+                Text("- DINOv2 does not scale super well", **body_text_kws),
+                Text("- DINOv2 has noisy feature maps", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("→ Can we do simpler?", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+            .to_edge(LEFT)
+            .shift(DOWN * 0.5)
+        )
+
+        self.play(Write(left_content))
+        self.play(FadeIn(ImageMobject(detour_image("resources/dinov2_caca.png")).scale(1.7).to_edge(RIGHT)))
+        ## Let's simplify DINOv2!
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Let's simplify DINOv2!", **title_text_kws).to_edge(UP)))
+
+        # Main equation
+        equation = Tex(
+            r"\mathcal{L}_{DINOv2}=\mathcal{L}_{DINO}+\mathcal{L}_{iBOT}+\mathcal{L}_{KoLeo}",
+            **title_text_kws,
+        ).center()
+
+        self.play(Write(equation))
+
+        # Arrows and explanations
+        # Left arrow and text (DINO)
+        left_text = (
+            VGroup(Text("DINO is well studied,", **body_text_kws), Text("we understand it", **body_text_kws))
+            .arrange(DOWN, aligned_edge=LEFT)
+            .to_edge(DL)
+        )
+        left_arrow = Arrow(
+            left_text,
+            equation.get_part_by_tex(r"\mathcal{L}_{DINO}"),
+            color=BLUE,
+            stroke_width=3,
+            buff=0.5,
+        )
+
+        self.play(ShowCreation(left_arrow))
+        self.play(Write(left_text))
+
+        # Right arrow and text (KoLeo)
+        right_text = (
+            VGroup(
+                Text("KoLeo is a regularization,", **body_text_kws), Text("let's ignore it for now", **body_text_kws)
+            )
+            .arrange(DOWN, aligned_edge=RIGHT)
+            .to_edge(DR)
+        )
+        right_arrow = Arrow(
+            right_text,
+            equation.get_part_by_tex(r"\mathcal{L}_{KoLeo}"),
+            color=BLUE,
+            stroke_width=3,
+            buff=0.5,
+        )
+
+        self.play(ShowCreation(right_arrow))
+        self.play(Write(right_text))
+
+        # Center arrow and text (iBOT)
+        center_text = Text("What's this?", **title_text_kws, color=BLUE).to_edge(DOWN)
+        center_arrow = Arrow(
+            center_text,
+            equation.get_part_by_tex(r"\mathcal{L}_{iBOT}"),  # TODO fix arrow positions
+            color=BLUE,
+            stroke_width=3,
+            buff=0.5,
+        )
+
+        self.play(ShowCreation(center_arrow))
+        self.play(Write(center_text))
+        ## iBOT
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("iBOT", **title_text_kws).to_edge(UP)))
+
+        # Left side bullet points
+        left_content = (
+            VGroup(
+                Text("- Zhou et al 2021, 6 months after DINO", **body_text_kws),
+                Text("- SOTA until DINOv2 (1.5 years)", **body_text_kws, t2c={"DINOv2": RED}),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("- Necessary for DINOv2", **body_text_kws),
+                Text("- But does not work without DINO!", **body_text_kws, t2c={"does not work without DINO!": RED}),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text(
+                    "- Flew under the radar, way less cited than DINOv1/2 or MAE",
+                    **body_text_kws,
+                    t2c={"DINOv1/2": RED, "MAE": RED},
+                ),
+                Text("- Not well studied", **body_text_kws, t2c={"Not well studied": RED}),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+            .to_edge(LEFT)
+            .shift(DOWN * 0.5)
+        )
+
+        self.play(Write(left_content[:2]))
+        self.next_slide()
+        self.play(Write(left_content[2:4]))
+
+        # Right side: Results table
+        # Create table structure with proper column alignment
+        col_width = 1.5  # Fixed width for each column
+
+        # Create individual cells with fixed positioning
+        # Header row
+        header_texts = ["MIM", "INet-1k", "Im-A", "ADE-20k", "Oxford-M"]
+        table_header = VGroup()
+        for i, text in enumerate(header_texts):
+            cell = Text(text, **body_text_kws)
+            cell.move_to(RIGHT * i * col_width)
+            table_header.add(cell)
+
+        # Row 1
+        row1_texts = ["✗", "85.3", "72.0", "44.2", "64.3"]
+        table_row1 = VGroup()
+        for i, text in enumerate(row1_texts):
+            cell = Text(text, **body_text_kws)
+            cell.move_to(RIGHT * i * col_width)
+            table_row1.add(cell)
+        table_row1.shift(DOWN * 0.5)
+
+        # Row 2
+        row2_texts = ["✓", "85.8", "72.8", "47.1", "63.9"]
+        table_row2 = VGroup()
+        for i, text in enumerate(row2_texts):
+            cell = Text(text, **body_text_kws)
+            cell.move_to(RIGHT * i * col_width)
+            table_row2.add(cell)
+        table_row2.shift(DOWN * 1)
+
+        # Position the table
+        table = VGroup(table_header, table_row1, table_row2)
+        table.to_edge(RIGHT).shift(UP * 0.5)
+
+        plus_annotation = Text("+2.9", **body_text_kws, t2c={"+2.9": RED}).next_to(table_row2[3], RIGHT, buff=0.1)
+        # Add table border
+        table_border = Rectangle(
+            width=table.get_width() + 0.5, height=table.get_height() + 0.3, stroke_color=BLACK, stroke_width=2
+        ).move_to(table)
+
+        self.play(ShowCreation(table_border))
+        self.play(Write(table_header))
+        self.play(Write(table_row1))
+        self.play(Write(table_row2))
+        self.play(Write(plus_annotation))
+        self.play(Write(left_content[4:5]))
+        self.next_slide()
+        self.play(Write(left_content[5:]))
+
+        # ...existing code...
