@@ -1732,3 +1732,300 @@ class MainSlide(Slide):
         self.next_slide()
         self.play(Write(left_content[3:]))
         self.play(FadeIn(diagram))
+        ## 3. Predictor architecture
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("3. Predictor architecture", **title_text_kws).to_edge(UP)))
+
+        # Three columns layout
+        # Left column - Simplest
+        left_col = (
+            VGroup(Text("Simplest:", **body_text_kws), Text("Single transformer", **body_text_kws))
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.3)
+            .to_edge(LEFT)
+            .shift(UP * 2)
+        )
+
+        # Middle column - Efficient
+        middle_col = (
+            VGroup(Text("Efficient:", **body_text_kws), Text("Drop [MSK] in enc", **body_text_kws))
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.3)
+            .center()
+            .shift(UP * 2)
+        )
+
+        # Right column - More efficient
+        right_col = (
+            VGroup(
+                Text("More efficient:", **body_text_kws),
+                Text("Drop [MSK] in enc", **body_text_kws),
+                Text("Drop patch in pred", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.3)
+            .to_edge(RIGHT)
+            .shift(UP * 2)
+        )
+
+        # Diagram placeholder
+        diagram = (
+            ImageMobject(detour_image("resources/predictor_architectures.png")).scale(0.9).center().shift(DOWN * 0.5)
+        )
+
+        # Animations
+        self.play(Write(left_col))
+
+        self.next_slide()
+        self.play(Write(middle_col))
+
+        self.next_slide()
+        self.play(Write(right_col))
+
+        self.next_slide()
+        self.play(FadeIn(diagram))
+        ## Are those the right choices?
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Are those the right choices?", **title_text_kws).to_edge(UP)))
+
+        # Subtitle
+        subtitle = (
+            Text("Both clustering loss and cross-attention predictor improve results by a lot", **body_text_kws)
+            .next_to(title, DOWN, buff=0.5)
+            .move_to(ORIGIN, coor_mask=[1, 0, 0])
+            .shift(UP * 2.5)
+        )
+
+        # Left table - Loss formulation
+        left_table_data = [
+            ["head", "loss", "ADE", "IN1k"],
+            ["∅", "I-JEPA", "23.7", "79.3"],
+            ["MLP", "iBOT", "1.7", "11.1"],
+            ["MLP", "CAPI", "26.4", "80.8"],
+            ["Linear", "CAPI", "29.1", "81.4"],
+        ]
+
+        # Right table - Predictor architecture
+        right_table_data = [
+            [".", "ADE", "IN1k"],
+            ["Fused", "23.8", "73.1"],
+            ["Split, self-attn", "27.9", "77.7"],
+            ["Split, cross-attn", "29.1", "81.4"],
+        ]
+        # Create left table
+        left_table = VGroup()
+        max_widths = [max(len(row[j]) for row in left_table_data) for j in range(len(left_table_data[0]))]
+        for i, row in enumerate(left_table_data):
+            row_group = VGroup()
+            x_coord = 0
+            for j, cell in enumerate(row):
+                cell_text = Text(cell, **body_text_kws)
+                if i == 0:  # Header
+                    cell_text.set_color(BLACK)
+                elif i == 4 and j >= 2:  # Highlight best results
+                    cell_text.set_color(BLACK)
+                    bg = Rectangle(
+                        width=cell_text.get_width() + 0.2,
+                        height=cell_text.get_height() + 0.1,
+                        fill_color=GREY_A,
+                        fill_opacity=0.8,
+                        stroke_width=0,
+                    )
+                    bg.move_to(cell_text)
+                    cell_text = VGroup(bg, cell_text)
+                # Position text at fixed x coordinate
+                cell_text.move_to(RIGHT * x_coord, aligned_edge=LEFT)
+                row_group.add(cell_text)
+                x_coord += max_widths[j] * 0.2 + 0.2  # Add spacing between columns
+            left_table.add(row_group)
+        left_table.arrange(DOWN, buff=0.3, center=False, aligned_edge=LEFT).to_edge(LEFT).shift(
+            RIGHT * 0.5 + DOWN * 0.5
+        )
+
+        # Create right table
+        right_table = VGroup()
+        max_widths = [max(len(row[j]) for row in right_table_data) for j in range(len(right_table_data[0]))]
+        for i, row in enumerate(right_table_data):
+            row_group = VGroup()
+            x_coord = 0
+            for j, cell in enumerate(row):
+                # if cell == "ADE":
+                print(i, j, cell, x_coord)
+                cell_text = Text(cell, **body_text_kws)
+                if i == 0:  # Header
+                    cell_text.set_color(BLACK)
+                elif i == 3 and j >= 1:  # Highlight best results
+                    cell_text.set_color(BLACK)
+                    bg = Rectangle(
+                        width=cell_text.get_width() + 0.2,
+                        height=cell_text.get_height() + 0.1,
+                        fill_color=GREY_A,
+                        fill_opacity=0.8,
+                        stroke_width=0,
+                    )
+                    bg.move_to(cell_text)
+                    cell_text = VGroup(bg, cell_text)
+                # Position text at fixed x coordinate
+                cell_text.move_to(RIGHT * x_coord, aligned_edge=LEFT)
+                row_group.add(cell_text)
+                x_coord += max_widths[j] * 0.3 + 0.05  # Add spacing between columns
+            right_table.add(row_group)
+        right_table.arrange(DOWN, buff=0.3, center=False, aligned_edge=LEFT).to_edge(RIGHT).shift(
+            LEFT * 0.5 + DOWN * 0.5
+        )
+
+        # Table labels
+        left_label = Text("(c) Loss formulation", **body_text_kws).next_to(left_table, DOWN, buff=0.3)
+        right_label = Text("(a) Predictor architecture", **body_text_kws).next_to(right_table, DOWN, buff=0.3)
+
+        # Animations
+        self.play(Write(subtitle))
+
+        self.next_slide()
+        self.play(Write(left_table), Write(left_label))
+
+        self.next_slide()
+        self.play(Write(right_table), Write(right_label))
+        ## Some other sensitive hyperparameters
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Some other sensitive hyperparameters", **title_text_kws).to_edge(UP)))
+
+        # Subtitle
+        subtitle = (
+            Text("Masking strategy and number of registers play a very important role", **body_text_kws).next_to(
+                title, DOWN, buff=0.5
+            )
+            # .shift(UP * 2)
+        )
+
+        # Left table - Masking strategy
+        left_table_data = [
+            [".", "ADE", "IN1k"],
+            ["random", "23.6", "76.4"],
+            ["block", "25.6", "79.9"],
+            ["inv. block", "27.2", "80.7"],
+            ["inv. block +roll", "29.1", "81.4"],
+        ]
+
+        # Right table - Number of registers
+        right_table_data = [[".", "ADE", "IN1k"], ["0", "25.9", "79.3"], ["16", "29.1", "81.4"]]
+        # Create left table
+        left_table = VGroup()
+        max_widths = [max(len(row[j]) for row in left_table_data) for j in range(len(left_table_data[0]))]
+        for i, row in enumerate(left_table_data):
+            row_group = VGroup()
+            x_coord = 0
+            for j, cell in enumerate(row):
+                cell_text = Text(cell, **body_text_kws)
+                if i == 0:  # Header
+                    cell_text.set_color(BLACK)
+                elif i == 4 and j >= 1:  # Highlight best results (inv. block +roll)
+                    cell_text.set_color(BLACK)
+                    bg = Rectangle(
+                        width=cell_text.get_width() + 0.2,
+                        height=cell_text.get_height() + 0.1,
+                        fill_color=GREY_A,
+                        fill_opacity=0.8,
+                        stroke_width=0,
+                    )
+                    bg.move_to(cell_text)
+                    cell_text = VGroup(bg, cell_text)
+                cell_text.move_to(RIGHT * x_coord, aligned_edge=LEFT)
+                row_group.add(cell_text)
+                x_coord += max_widths[j] * 0.3 + 0.5  # Add spacing between columns
+            left_table.add(row_group)
+        left_table.arrange(DOWN, buff=0.4, center=False, aligned_edge=LEFT).to_edge(LEFT)
+
+        # Create right table
+        right_table = VGroup()
+        max_widths = [max(len(row[j]) for row in right_table_data) for j in range(len(right_table_data[0]))]
+        for i, row in enumerate(right_table_data):
+            row_group = VGroup()
+            x_coord = 0
+            for j, cell in enumerate(row):
+                cell_text = Text(cell, **body_text_kws)
+                if i == 0:  # Header
+                    cell_text.set_color(BLACK)
+                elif i == 2 and j >= 1:  # Highlight best results (16 registers)
+                    cell_text.set_color(BLACK)
+                    bg = Rectangle(
+                        width=cell_text.get_width() + 0.2,
+                        height=cell_text.get_height() + 0.1,
+                        fill_color=GREY_A,
+                        fill_opacity=0.8,
+                        stroke_width=0,
+                    )
+                    bg.move_to(cell_text)
+                    cell_text = VGroup(bg, cell_text)
+                cell_text.move_to(RIGHT * x_coord, aligned_edge=LEFT)
+                row_group.add(cell_text)
+                x_coord += max_widths[j] * 0.3 + 0.5  # Add spacing between columns
+            right_table.add(row_group)
+        right_table.arrange(DOWN, buff=0.4, center=False, aligned_edge=LEFT).to_edge(RIGHT).move_to(
+            left_table, aligned_edge=DOWN, coor_mask=[0, 1, 0]
+        )
+
+        # Table labels
+        left_label = Text("(b) Masking strategy", **body_text_kws).next_to(left_table, DOWN, buff=0.5)
+        right_label = Text("(g) Number of registers", **body_text_kws).next_to(right_table, DOWN, buff=0.5)
+
+        # Animations
+        self.play(Write(subtitle))
+
+        self.next_slide()
+        self.play(Write(left_table), Write(left_label))
+
+        self.next_slide()
+        self.play(Write(right_table), Write(right_label))
+        ## Compared to previous models? (classification)
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Compared to previous models? (classification)", **title_text_kws).to_edge(UP)))
+
+        # Subtitle
+        subtitle = Text("Much stronger than previous MIM models, but not quite at DINOv2 yet", **body_text_kws).next_to(
+            title, DOWN, buff=0.5
+        )
+
+        # Create the comparison table as an image since it's quite complex
+        table_image = (
+            ImageMobject(detour_image("resources/classification_comparison_table.png"))
+            .scale(1.5)
+            .next_to(subtitle, DOWN, buff=0.25)
+        )
+        self.play(Write(subtitle))
+
+        self.next_slide()
+        self.play(FadeIn(table_image))
+
+        ## Compared to previous models? (segmentation)
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Compared to previous models? (segmentation)", **title_text_kws).to_edge(UP)))
+
+        # Subtitle
+        subtitle = (
+            Text("Sometimes outperforms DINOv2! Eg ADE20K when pretrained on Places", **body_text_kws).next_to(
+                title, DOWN, buff=0.25
+            )
+            # .shift(UP * 2.5)
+        )
+
+        # Create the segmentation comparison table as an image
+        table_image = (
+            ImageMobject(detour_image("resources/segmentation_comparison_table.png"))
+            .scale(1.5)
+            .next_to(subtitle, DOWN, buff=0.25)
+        )
+
+        # Animations
+        self.play(Write(subtitle))
+
+        self.next_slide()
+        self.play(FadeIn(table_image))
+
+        ## pca comparisons
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("PCA of feature maps", **title_text_kws).to_edge(UP)))
+        self.play(FadeIn(ImageMobject(detour_image("resources/capi_pca_comparison.png")).scale(1.5).to_edge(DOWN)))
