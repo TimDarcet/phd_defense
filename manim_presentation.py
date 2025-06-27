@@ -1489,5 +1489,95 @@ class MainSlide(Slide):
         self.play(Write(left_content[4:5]))
         self.next_slide()
         self.play(Write(left_content[5:]))
+        ## Masked Image Modeling
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(title := Text("Masked Image Modeling", **title_text_kws).to_edge(UP)))
 
-        # ...existing code...
+        # Main description box
+        description_text = Text(
+            '"Remove part of an image,\nand predict what\'s missing"', **title_text_kws, alignment="CENTER"
+        ).next_to(title, DOWN, buff=1)
+        description_box = Rectangle(
+            width=description_text.get_width() + 0.5,
+            height=description_text.get_height() + 0.5,
+            stroke_color=BLACK,
+            stroke_width=2,
+            fill_color=WHITE,
+            fill_opacity=0.5,
+        ).move_to(description_text)
+
+        self.play(ShowCreation(description_box))
+        self.play(Write(description_text))
+        # Add image anatomy image at the bottom
+        self.play(FadeIn(ImageMobject(detour_image("resources/anatomy.png")).to_edge(DOWN)))
+        ## 1. Target representation: (a) pixel values
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("1. Target representation: (a) pixel values", **title_text_kws).to_edge(UP)))
+
+        # Left side content
+        left_content = (
+            VGroup(
+                Text("Simplest case: pixels (eg MAE)", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("But: focuses on color and texture,", **body_text_kws),
+                Text("instead of semantics", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("In practice, not great representations", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.4)
+            .to_edge(LEFT)
+            .shift(DOWN * 0.5)
+        )
+
+        # # Right side: Target box and examples
+        # target_box = RoundedRectangle(
+        #     width=1.5, height=0.6, corner_radius=0.2,
+        #     fill_color=GREEN, fill_opacity=0.8, stroke_color=BLACK
+        # ).to_edge(RIGHT).shift(UP * 2.5)
+        # target_text = Text("Target", **body_text_kws, color=WHITE).move_to(target_box)
+
+        # # Arrow pointing down from target box
+        # target_arrow = Arrow(
+        #     target_box.get_bottom(),
+        #     target_box.get_bottom() + DOWN * 1.5,
+        #     color=BLACK, stroke_width=3
+        # )
+
+        # # Example image placeholders for pixel targets
+        # pixel_examples = VGroup()
+        # for _ in range(4):
+        #     example_rect = Rectangle(width=0.8, height=0.8, fill_color=GREY_A, fill_opacity=0.5, stroke_color=BLACK)
+        #     pixel_examples.add(example_rect)
+        # pixel_examples.arrange(RIGHT, buff=0.2).next_to(target_arrow, DOWN, buff=0.3)
+
+        # # Caption for pixel targets
+        # pixel_caption = VGroup(
+        #     Text("(a) Pixel targets", **body_text_kws),
+        #     Text("(iGPT, MAE, AIM)", **body_text_kws, color=GREY)
+        # ).arrange(DOWN, buff=0.1).next_to(pixel_examples, DOWN, buff=0.3)
+
+        # MAE diagram at the bottom
+        mae_diagram = ImageMobject(detour_image("resources/pixel_targets_beurk.png")).scale(1.4).to_edge(RIGHT)
+
+        # Citation
+        citation = (
+            Text('He et al, 2021, "Masked Autoencoders Are Scalable Vision Learners"', **sub_text_kws)
+            .to_edge(DOWN)
+            .to_edge(RIGHT)
+        )
+
+        # Animations
+        self.play(Write(left_content[0]))
+        self.play(FadeIn(mae_diagram))
+        # self.play(ShowCreation(target_box), Write(target_text))
+        # self.play(ShowCreation(target_arrow))
+        # self.play(FadeIn(pixel_examples), Write(pixel_caption))
+
+        # self.next_slide()
+        self.play(Write(left_content[1:4]))
+
+        # self.next_slide()
+        self.play(Write(left_content[4:]))
+        self.play(Write(citation))
