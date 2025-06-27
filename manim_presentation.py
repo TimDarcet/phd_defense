@@ -1530,35 +1530,6 @@ class MainSlide(Slide):
             .to_edge(LEFT)
             .shift(DOWN * 0.5)
         )
-
-        # # Right side: Target box and examples
-        # target_box = RoundedRectangle(
-        #     width=1.5, height=0.6, corner_radius=0.2,
-        #     fill_color=GREEN, fill_opacity=0.8, stroke_color=BLACK
-        # ).to_edge(RIGHT).shift(UP * 2.5)
-        # target_text = Text("Target", **body_text_kws, color=WHITE).move_to(target_box)
-
-        # # Arrow pointing down from target box
-        # target_arrow = Arrow(
-        #     target_box.get_bottom(),
-        #     target_box.get_bottom() + DOWN * 1.5,
-        #     color=BLACK, stroke_width=3
-        # )
-
-        # # Example image placeholders for pixel targets
-        # pixel_examples = VGroup()
-        # for _ in range(4):
-        #     example_rect = Rectangle(width=0.8, height=0.8, fill_color=GREY_A, fill_opacity=0.5, stroke_color=BLACK)
-        #     pixel_examples.add(example_rect)
-        # pixel_examples.arrange(RIGHT, buff=0.2).next_to(target_arrow, DOWN, buff=0.3)
-
-        # # Caption for pixel targets
-        # pixel_caption = VGroup(
-        #     Text("(a) Pixel targets", **body_text_kws),
-        #     Text("(iGPT, MAE, AIM)", **body_text_kws, color=GREY)
-        # ).arrange(DOWN, buff=0.1).next_to(pixel_examples, DOWN, buff=0.3)
-
-        # MAE diagram at the bottom
         mae_diagram = ImageMobject(detour_image("resources/pixel_targets_beurk.png")).scale(1.4).to_edge(RIGHT)
 
         # Citation
@@ -1571,13 +1542,71 @@ class MainSlide(Slide):
         # Animations
         self.play(Write(left_content[0]))
         self.play(FadeIn(mae_diagram))
-        # self.play(ShowCreation(target_box), Write(target_text))
-        # self.play(ShowCreation(target_arrow))
-        # self.play(FadeIn(pixel_examples), Write(pixel_caption))
-
         # self.next_slide()
         self.play(Write(left_content[1:4]))
 
         # self.next_slide()
         self.play(Write(left_content[4:]))
         self.play(Write(citation))
+        ## 1. Target representation: (b) pretrained model
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("1. Target representation: (b) pretrained model", **title_text_kws).to_edge(UP)))
+
+        # Left side content
+        left_content = (
+            VGroup(
+                Text("More semantic representations!", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("- BeiT uses a dVAE", **body_text_kws),
+                Text("  - But it's still focused on pixels and textures", **body_text_kws).shift(0.5 * RIGHT),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("- EVA uses a CLIP", **body_text_kws),
+                Text("  - But CLIP has bad feature maps", **body_text_kws).shift(0.5 * RIGHT),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("Suppose you trained a good encoder this way.", **body_text_kws),
+                Text("Why not use it as target encoder for a new training?", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.4)
+            .to_edge(LEFT)
+            .shift(DOWN * 0.5)
+        )
+        self.play(Write(left_content[0]))
+        self.play(
+            FadeIn(
+                ImageMobject(detour_image("resources/frozen_encoder_diagram.png"))
+                .scale(1)
+                .to_edge(RIGHT)
+                .shift(DOWN * 0.5)
+            )
+        )
+        self.play(Write(left_content[1:]))
+        ## Aside: dBOT
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("Aside: dBOT", **title_text_kws).to_edge(UP)))
+
+        # Main steps
+        steps = (
+            VGroup(
+                Text("1. Train an encoder with MIM", **body_text_kws),
+                Text("2. Use its features as targets to train a new one", **body_text_kws),
+                Text("3. GOTO 2", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+            .to_edge(LEFT)
+            .next_to(title, DOWN, buff=1, coor_mask=[0, 1, 0])
+        )
+
+        self.play(FadeIn(dbot_diagram := ImageMobject(detour_image("resources/dbot_diagram.png")).scale(1).to_edge(DR)))
+        self.play(Write(steps[0]))
+        self.play(Write(steps[1:]))
+        ## dBOT: moar
+        self.next_slide()
+        dbot_diagram_2 = ImageMobject(detour_image("resources/dbot_diagram_2.png")).move_to(dbot_diagram)
+        self.play(Transform(dbot_diagram, dbot_diagram_2))
+        ## dBOT: MOAR
+        self.next_slide()
+        dbot_diagram_3 = ImageMobject(detour_image("resources/dbot_diagram_3.png")).move_to(dbot_diagram)
+        self.play(Transform(dbot_diagram, dbot_diagram_3))
+        self.play(Write(Text("→ Let’s just make this online: use an EMA", **body_text_kws).to_edge(DOWN)))
