@@ -1610,3 +1610,87 @@ class MainSlide(Slide):
         dbot_diagram_3 = ImageMobject(detour_image("resources/dbot_diagram_3.png")).move_to(dbot_diagram)
         self.play(Transform(dbot_diagram, dbot_diagram_3))
         self.play(Write(Text("→ Let’s just make this online: use an EMA", **body_text_kws).to_edge(DOWN)))
+        ## 1. Target representation: (c) online model
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("1. Target representation: (c) online model", **title_text_kws).to_edge(UP)))
+
+        # Left side content
+        left_content = (
+            VGroup(
+                Text("Similar to dBOT, but continuous", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("Adds weight averaging (good)", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("But it's hard (unstable)", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("→ Let's make it work!", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.4)
+            .to_edge(LEFT)
+            .shift(DOWN * 0.5)
+        )
+
+        # Add diagram
+        diagram = ImageMobject(detour_image("resources/target_representation_online_model.png")).scale(1).to_edge(RIGHT)
+        self.play(Write(left_content[0]))
+        self.play(FadeIn(diagram))
+        self.play(Write(left_content[1:4]))
+        self.play(Write(left_content[4:6]))
+        self.play(Write(left_content[6:]))
+        ## 2. Loss formulation: (a) direct loss
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("2. Loss formulation: (a) direct loss", **title_text_kws).to_edge(UP)))
+
+        # Left side content with the loss description
+        left_content = VGroup(Text("Simply doing", **body_text_kws)).to_edge(LEFT).shift(DOWN * 0.5)
+
+        # Mathematical formula
+        loss_formula = Tex(r"\mathcal{L} = ||\text{pred} - \text{target}||_2^2", **title_text_kws).next_to(
+            left_content, RIGHT, buff=0.5
+        )
+
+        # Animations
+        self.play(Write(left_content))
+        self.play(Write(loss_formula))
+        diagram = ImageMobject(detour_image("resources/direct_loss.png")).scale(1).to_edge(RIGHT)
+        self.play(FadeIn(diagram))
+        ## 2. Loss formulation: (b) loss after MLP
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.play(Write(Text("2. Loss formulation: (b) loss after MLP", **title_text_kws).to_edge(UP)))
+
+        # Left side content
+        left_content = (
+            VGroup(
+                Text("In iBOT, pred and target are projected through an MLP", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("This idea comes from the DINO projection head", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("In DINO, the interpretation of the head was an", **body_text_kws),
+                Text("implicit clustering.", **body_text_kws),
+                Text("", **body_text_kws),  # Empty line for spacing
+                Text("Here, the interpretation is unclear.", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.3)
+            .to_edge(LEFT)
+            .shift(DOWN * 0.5)
+        )
+
+        # Right side diagram
+        diagram = ImageMobject(detour_image("resources/loss_after_mlp.png")).scale(1).to_edge(RIGHT)
+
+        # Animations
+        self.play(Write(left_content[0:2]))
+        self.play(FadeIn(diagram))
+
+        self.next_slide()
+        self.play(Write(left_content[2:4]))
+
+        self.next_slide()
+        self.play(Write(left_content[4:7]))
+
+        self.next_slide()
+        self.play(Write(left_content[7:]))
+        # TODO maybe discuss DINO == clustering
