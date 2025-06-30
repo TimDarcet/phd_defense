@@ -20,6 +20,7 @@ dependencies = [
     "ipywidgets",
     "pillow",
     "numpy",
+    "pyopengl-accelerate>=3.1.9",
 ]
 
 

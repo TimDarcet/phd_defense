@@ -1,5 +1,4 @@
 # type: ignore
-from manim_slides.slide import Slide, ThreeDSlide
 from manimlib import (
     ABC,
     ALL_MODIFIERS,
@@ -653,6 +652,12 @@ from manimlib import (
     z_to_vector,
 )
 
+# separate the 2 imports
+tmp = 0
+from manim_slides.slide import Slide, ThreeDSlide
+
+assert issubclass(Slide, Scene)
+
 title_text_kws = {
     "font_size": 48,
     "fill_color": "#333333",  # Dark grey color
@@ -688,9 +693,9 @@ class MainSlide(Slide):
         # Set background color to beige
         self.camera.background_rgba = [*list(Color("#FAF8EE").rgb), 1.0]
         ## eg slide
-        self.play(*(FadeOut(mob) for mob in self.mobjects))
-        # blabla
-        self.next_slide()
+        # self.play(*(FadeOut(mob) for mob in self.mobjects))
+        # # blabla
+        # self.next_slide()
 
         ## Title
         self.play(
@@ -1848,8 +1853,6 @@ class MainSlide(Slide):
             row_group = VGroup()
             x_coord = 0
             for j, cell in enumerate(row):
-                # if cell == "ADE":
-                print(i, j, cell, x_coord)
                 cell_text = Text(cell, **body_text_kws)
                 if i == 0:  # Header
                     cell_text.set_color(BLACK)
