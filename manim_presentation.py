@@ -961,6 +961,7 @@ class MainSlide(Slide):
             Write(slide_text[0]),
         )
         ## Focus CLS-->patches
+        self.next_slide()
         self.play(Write(slide_text[1]))
 
         normalizer = attn_mat[0, 1:].max()
