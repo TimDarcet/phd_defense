@@ -677,20 +677,30 @@ def detour_image(p, thresh=0.8):
     return p + ".detoured.png"
 
 
+# TODO add advisors, jury, meta/inria logos (title slide)
+# TODO add some intro like general stuff on SSL or deep learning
+# TODO remove "about me"
+# TODO do a dry run
+# TODO use viridis colormap (attention animation)
+# TODO thank you slide? With lab pictures? Tons of pictures?
+# TODO backup slides for questions? Check the manuscript feedback
+# TODO table of contents?
+# TODO outline at screen bottom?
+# TODO what is CV slide with lots of pictures?
+# TODO add videos to title slide
+
+# TODO fix arrow positions in dinov2 equation
+# TODO maybe discuss DINO == clustering
+# TODO (MIM slide) include the full images? rearrange the slide?
+
+
 class MainSlide(Slide):
     skip_reversing = True
 
     def construct(self):
-        # Set background color to beige
         self.camera.background_rgba = [*list(Color("#FAF8EE").rgb), 1.0]
-        ## eg slide
-        # self.play(*(FadeOut(mob) for mob in self.mobjects))
-        # self.remove(*self.mobjects)
-        # # blabla
-        # self.next_slide()
         ## Wait slide
         # self.add(VideoMobject("resources/dinov2_video_madeleine.mp4"))
-
         ## Title
         self.next_slide()
         self.play(
@@ -702,21 +712,27 @@ class MainSlide(Slide):
         )
         self.play(Write(Text("PhD Thesis Defense", **body_text_kws).shift(DOWN * 2)))
         self.play(Write(Text("Timothée Darcet", **body_text_kws).shift(DOWN * 0.5)))
-        # TODO add advisors, jury, meta/inria logos
         self.next_slide()
         ## About me
         self.play(*(FadeOut(mob) for mob in self.mobjects))
         self.remove(*self.mobjects)
-        self.play(Write(Text("About me", **title_text_kws).shift(3 * UP)))
+        self.play(Write(Text("About me", **title_text_kws).to_edge(UP)))
         self.play(
             Write(
-                Text(
-                    "I am a PhD student at Inria (Grenoble) and Meta\n"
-                    + "Advised by Maxime Oquab, Piotr Bojanowski and Julien Mairal (+ formerly Armand Joulin)\n"
-                    + "Previously: master's at ENS Paris-Saclay (MVA) and master's at Ecole polytechnique\n"
-                    + "I worked on: self-supervised learning, vision transformers",
-                    **body_text_kws,
-                ).shift(DOWN * 0.5)
+                VGroup(
+                    Text("I am a PhD student at Inria (Grenoble) and Meta", **body_text_kws),
+                    Text(
+                        "Advised by Maxime Oquab, Piotr Bojanowski and Julien Mairal (+ formerly Armand Joulin)",
+                        **body_text_kws,
+                    ),
+                    Text(
+                        "Previously: master's at ENS Paris-Saclay (MVA) and master's at Ecole polytechnique",
+                        **body_text_kws,
+                    ),
+                    Text("I worked on: self-supervised learning, vision transformers", **body_text_kws),
+                )
+                .arrange(DOWN, buff=0.5, aligned_edge=LEFT)
+                .shift(DOWN * 0.5)
             )
         )
         self.next_slide()
@@ -746,7 +762,7 @@ class MainSlide(Slide):
             Text("Automatic Data Curation for Self-Supervised Learning: A Clustering-Based Approach", **body_text_kws),
             Text("Vo et al, TMLR 2024", **sub_text_kws),
             Text(
-                "DINOv2 Meets Text: A Unified Framework for Image-and Pixel-Level Vision-Language Alignment",
+                "DINOv2 Meets Text: A Unified Framework for Image and Pixel-Level\nVision-Language Alignment",
                 **body_text_kws,
             ),
             Text("Jose et al, CVPR 2025", **sub_text_kws),
@@ -761,23 +777,21 @@ class MainSlide(Slide):
         all_text = VGroup(main_papers_text, secondary_papers_text)
         all_text.center()
 
-        main_papers_box = (
-            Rectangle(
-                width=max(main_papers_text.get_width(), secondary_papers_text.get_width()) + 0.5,
-                # width=main_papers_text.get_width() + 0.5,
-                height=main_papers_text.get_height() + 0.5,
-            )
-            .move_to(main_papers_text, aligned_edge=LEFT)
-            .shift(LEFT * 0.25)
-            .flip()
-        )
         secondary_papers_box = (
             Rectangle(
-                width=main_papers_box.get_width(),
-                # width=secondary_papers_text.get_width() + 0.5,
+                width=max(main_papers_text.get_width(), secondary_papers_text.get_width()) + 0.5,
                 height=secondary_papers_text.get_height() + 0.5,
             )
             .move_to(secondary_papers_text)
+            .flip()
+        )
+        main_papers_box = (
+            Rectangle(
+                width=max(main_papers_text.get_width(), secondary_papers_text.get_width()) + 0.5,
+                height=main_papers_text.get_height() + 0.5,
+            )
+            .move_to(secondary_papers_box)
+            .move_to(main_papers_text, coor_mask=(0, 1, 0))
             .flip()
         )
 
@@ -948,8 +962,6 @@ class MainSlide(Slide):
             ),
         )
         self.play(Write(recipe[0]))
-        ## Cleanup
-        # self.remove(*(mob for mob in self.mobjects))
         ## Primer: reshape
         self.next_slide()
         self.play(FadeOut(input_tokens[1:]))
@@ -1076,9 +1088,8 @@ class MainSlide(Slide):
                 .to_edge(LEFT)
             )
         )
-        # TODO use bigger default font
         self.play(FadeIn(ImageMobject(detour_image("resources/high_norms.png")).scale(0.7).to_edge(DR)))
-        ## Where do those outliers appear?
+        ## When do those outliers appear?
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
         self.remove(*self.mobjects)
@@ -1128,14 +1139,14 @@ class MainSlide(Slide):
             .shift(UP)
         )
         self.play(Write(caption))
-        self.play(FadeIn(cos_sim_plot.scale(1).next_to(caption, DOWN)))
+        self.play(FadeIn(cos_sim_plot.scale(0.9).next_to(caption, DOWN)))
         self.next_slide()
         ## What information do the high-norm tokens hold?
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
         self.remove(*self.mobjects)
         self.play(Write(title := Text("What information do the high-norm tokens hold?", **title_text_kws).to_edge(UP)))
-        self.play(Write(Text("(Compared to other patches)", **body_text_kws).next_to(title, DOWN)))
+        self.play(Write(Text("(Compared to other patch tokens)", **body_text_kws).next_to(title, DOWN)))
         self.play(
             Write(
                 caption_1 := VGroup(
@@ -1143,14 +1154,15 @@ class MainSlide(Slide):
                     Text("→ Model did discard this info!", **body_text_kws, t2c={"did": RED}),
                 )
                 .arrange(DOWN, aligned_edge=LEFT)
-                .next_to(title, DOWN, aligned_edge=LEFT, buff=2)
+                .to_edge(LEFT)
+                .shift(0 * UP)
             )
         )
         self.play(
             FadeIn(
                 table_1 := ImageMobject(detour_image("resources/local_info_probing.png"))
                 .scale(0.4)
-                .next_to(caption_1, DOWN, aligned_edge=LEFT, buff=1.5)
+                .next_to(caption_1, DOWN, aligned_edge=LEFT, buff=1)
             )
         )
         self.next_slide()
@@ -1167,7 +1179,7 @@ class MainSlide(Slide):
                 VGroup(
                     Text("More global information", **body_text_kws, t2c={"More": RED}),
                     Text(
-                        "→ These tokens are global information aggregators",
+                        "These tokens are global information aggregators",
                         **body_text_kws,
                         t2c={"global information aggregators": RED},
                     ),
@@ -1229,19 +1241,18 @@ class MainSlide(Slide):
         self.play(*(FadeOut(mob) for mob in self.mobjects))
         self.remove(*self.mobjects)
         self.play(Write(Text("Does it work?", **title_text_kws).to_edge(UP)))
-        self.play(
-            Write(
-                caption := VGroup(
-                    Text("Yes, it does!", **body_text_kws),
-                    Text("We can train a model with registers", **body_text_kws),
-                    Text("It has no artifacts", **body_text_kws),
-                    Text("It has better representations", **body_text_kws),
-                )
-                .arrange(DOWN, aligned_edge=LEFT, buff=0.5)
-                .to_edge(LEFT)
-                .shift(UP * 1)
+        caption = (
+            VGroup(
+                Text("Yes, it does!", **body_text_kws),
+                Text("We can train a model with registers", **body_text_kws),
+                Text("It has no artifacts", **body_text_kws),
+                Text("It has better representations", **body_text_kws),
             )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+            .to_edge(LEFT)
+            .shift(UP * 1)
         )
+        self.play(Write(caption[:3]))
         self.play(
             FadeIn(
                 ImageMobject(detour_image("resources/pyrrhus_reg_before_after.png"))
@@ -1250,6 +1261,8 @@ class MainSlide(Slide):
                 .move_to(caption, coor_mask=[0, 1, 0])
             )
         )
+        self.next_slide()
+        self.play(Write(caption[3:]))
         self.play(FadeIn(ImageMobject(detour_image("resources/n_reg_score_curves.png")).scale(0.7).to_edge(DOWN)))
         ## What about supervised? And CLIP?
         self.next_slide()
@@ -1278,7 +1291,6 @@ class MainSlide(Slide):
         self.next_slide()
         self.play(Write(caption[2:]))
         self.play(FadeIn(ImageMobject(detour_image("resources/pullfig_registers.png")).scale(0.9).to_edge(DOWN)))
-        # TODO add some intro like general stuff on SSL or deep learning
         ## Bonus: attention maps of registers
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
@@ -1428,7 +1440,7 @@ class MainSlide(Slide):
         center_text = Text("What's this?", **title_text_kws, color=BLUE).to_edge(DOWN)
         center_arrow = Arrow(
             center_text,
-            equation.get_part_by_tex(r"\mathcal{L}_{iBOT}"),  # TODO fix arrow positions
+            equation.get_part_by_tex(r"\mathcal{L}_{iBOT}"),
             color=BLUE,
             stroke_width=3,
             buff=0.5,
@@ -1520,7 +1532,6 @@ class MainSlide(Slide):
         self.play(*(FadeOut(mob) for mob in self.mobjects))
         self.remove(*self.mobjects)
         self.play(Write(title := Text("Masked Image Modeling", **title_text_kws).to_edge(UP)))
-
         # Main description box
         description_text = Text(
             '"Remove part of an image,\nand predict what\'s missing"', **title_text_kws, alignment="CENTER"
@@ -1633,13 +1644,27 @@ class MainSlide(Slide):
         self.play(Write(steps[1:]))
         ## dBOT: moar
         self.next_slide()
-        dbot_diagram_2 = ImageMobject(detour_image("resources/dbot_diagram_2.png")).move_to(dbot_diagram)
-        self.play(Transform(dbot_diagram, dbot_diagram_2))
-        ## dBOT: MOAR
-        self.next_slide()
-        dbot_diagram_3 = ImageMobject(detour_image("resources/dbot_diagram_3.png")).move_to(dbot_diagram)
-        self.play(Transform(dbot_diagram, dbot_diagram_3))
-        self.play(Write(Text("→ Let's just make this online: use an EMA", **body_text_kws).to_edge(DOWN)))
+        dbot_diagram_2 = (
+            ImageMobject(detour_image("resources/dbot_diagram_2.png"))
+            .move_to(dbot_diagram)
+            .set_width(14.2)
+            .shift(LEFT * 2)
+        )
+        self.play(FadeOut(dbot_diagram), FadeIn(dbot_diagram_2))
+        dbot_diagram_3 = (
+            ImageMobject(detour_image("resources/dbot_diagram_3.png"))
+            .move_to(dbot_diagram)
+            .set_width(14.2)
+            .shift(LEFT * 2)
+        )
+        self.play(FadeOut(dbot_diagram_2), FadeIn(dbot_diagram_3))
+        self.play(
+            Write(
+                Text("→ Let's just make this online: use an EMA", **body_text_kws, t2c={"use an EMA": RED}).to_edge(
+                    DOWN
+                )
+            )
+        )
         ## 1. Target representation: (c) online model
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
@@ -1726,7 +1751,6 @@ class MainSlide(Slide):
 
         self.next_slide()
         self.play(Write(left_content[7:]))
-        # TODO maybe discuss DINO == clustering
         ## 2. Loss formulation: (c) loss after clustering
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
@@ -1807,16 +1831,10 @@ class MainSlide(Slide):
         )
 
         # Animations
-        self.play(Write(left_col))
-
-        self.next_slide()
-        self.play(Write(middle_col))
-
-        self.next_slide()
-        self.play(Write(right_col))
-
-        self.next_slide()
         self.play(FadeIn(diagram))
+        self.play(Write(left_col))
+        self.play(Write(middle_col))
+        self.play(Write(right_col))
         ## Are those the right choices?
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
@@ -1825,10 +1843,10 @@ class MainSlide(Slide):
 
         # Subtitle
         subtitle = (
-            Text("Both clustering loss and cross-attention predictor improve results by a lot", **body_text_kws)
-            .next_to(title, DOWN, buff=0.5)
-            .move_to(ORIGIN, coor_mask=[1, 0, 0])
-            .shift(UP * 2.5)
+            Text(
+                "Both clustering loss and cross-attention predictor improve results by a lot", **body_text_kws
+            ).next_to(title, DOWN, buff=0.5)
+            # .move_to(ORIGIN, coor_mask=[1, 0, 0])
         )
 
         # Left table - Loss formulation
@@ -1873,10 +1891,7 @@ class MainSlide(Slide):
                 row_group.add(cell_text)
                 x_coord += max_widths[j] * 0.2 + 0.2  # Add spacing between columns
             left_table.add(row_group)
-        left_table.arrange(DOWN, buff=0.3, center=False, aligned_edge=LEFT).to_edge(LEFT).shift(
-            RIGHT * 0.5 + DOWN * 0.5
-        )
-
+        left_table.arrange(DOWN, buff=0.3, center=False, aligned_edge=LEFT).to_edge(LEFT)
         # Create right table
         right_table = VGroup()
         max_widths = [max(len(row[j]) for row in right_table_data) for j in range(len(right_table_data[0]))]
@@ -1903,22 +1918,33 @@ class MainSlide(Slide):
                 row_group.add(cell_text)
                 x_coord += max_widths[j] * 0.3 + 0.05  # Add spacing between columns
             right_table.add(row_group)
-        right_table.arrange(DOWN, buff=0.3, center=False, aligned_edge=LEFT).to_edge(RIGHT).shift(
-            LEFT * 0.5 + DOWN * 0.5
-        )
+        right_table.arrange(DOWN, buff=0.3, center=False, aligned_edge=LEFT).to_edge(RIGHT)
+        # Add borders around tables
+        left_table_border = Rectangle(
+            width=left_table.get_width() + 0.5,
+            height=left_table.get_height() + 0.5,
+            stroke_color=BLACK,
+            stroke_width=2,
+        ).move_to(left_table)
 
+        right_table_border = Rectangle(
+            width=right_table.get_width() + 0.5,
+            height=right_table.get_height() + 0.5,
+            stroke_color=BLACK,
+            stroke_width=2,
+        ).move_to(right_table)
         # Table labels
-        left_label = Text("(c) Loss formulation", **body_text_kws).next_to(left_table, DOWN, buff=0.3)
-        right_label = Text("(a) Predictor architecture", **body_text_kws).next_to(right_table, DOWN, buff=0.3)
+        left_label = Text("Loss formulation", **body_text_kws).next_to(left_table, UP, buff=0.5)
+        right_label = Text("Predictor architecture", **body_text_kws).next_to(right_table, UP, buff=0.5)
 
         # Animations
         self.play(Write(subtitle))
 
         self.next_slide()
-        self.play(Write(left_table), Write(left_label))
+        self.play(ShowCreation(left_table_border), Write(left_table), Write(left_label))
 
         self.next_slide()
-        self.play(Write(right_table), Write(right_label))
+        self.play(ShowCreation(right_table_border), Write(right_table), Write(right_label))
         ## Some other sensitive hyperparameters
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
@@ -1926,11 +1952,8 @@ class MainSlide(Slide):
         self.play(Write(Text("Some other sensitive hyperparameters", **title_text_kws).to_edge(UP)))
 
         # Subtitle
-        subtitle = (
-            Text("Masking strategy and number of registers play a very important role", **body_text_kws).next_to(
-                title, DOWN, buff=0.5
-            )
-            # .shift(UP * 2)
+        subtitle = Text("Masking strategy and number of registers play a very important role", **body_text_kws).next_to(
+            title, DOWN, buff=0.5
         )
 
         # Left table - Masking strategy
@@ -1997,42 +2020,34 @@ class MainSlide(Slide):
                 x_coord += max_widths[j] * 0.3 + 0.5  # Add spacing between columns
             right_table.add(row_group)
         right_table.arrange(DOWN, buff=0.4, center=False, aligned_edge=LEFT).to_edge(RIGHT).move_to(
-            left_table, aligned_edge=DOWN, coor_mask=[0, 1, 0]
+            left_table, aligned_edge=UP, coor_mask=[0, 1, 0]
         )
+        # Add borders around tables
+        left_table_border = Rectangle(
+            width=left_table.get_width() + 0.5,
+            height=left_table.get_height() + 0.5,
+            stroke_color=BLACK,
+            stroke_width=2,
+        ).move_to(left_table)
 
+        right_table_border = Rectangle(
+            width=right_table.get_width() + 0.5,
+            height=right_table.get_height() + 0.5,
+            stroke_color=BLACK,
+            stroke_width=2,
+        ).move_to(right_table)
         # Table labels
-        left_label = Text("(b) Masking strategy", **body_text_kws).next_to(left_table, DOWN, buff=0.5)
-        right_label = Text("(g) Number of registers", **body_text_kws).next_to(right_table, DOWN, buff=0.5)
+        left_label = Text("Masking strategy", **body_text_kws).next_to(left_table, UP, buff=0.5)
+        right_label = Text("Number of registers", **body_text_kws).next_to(right_table, UP, buff=0.5)
 
         # Animations
         self.play(Write(subtitle))
 
         self.next_slide()
-        self.play(Write(left_table), Write(left_label))
+        self.play(ShowCreation(left_table_border), Write(left_table), Write(left_label))
 
         self.next_slide()
-        self.play(Write(right_table), Write(right_label))
-        ## Compared to previous models? (classification)
-        self.next_slide()
-        self.play(*(FadeOut(mob) for mob in self.mobjects))
-        self.remove(*self.mobjects)
-        self.play(Write(Text("Compared to previous models? (classification)", **title_text_kws).to_edge(UP)))
-
-        # Subtitle
-        subtitle = Text("Much stronger than previous MIM models, but not quite at DINOv2 yet", **body_text_kws).next_to(
-            title, DOWN, buff=0.5
-        )
-
-        # Create the comparison table as an image since it's quite complex
-        table_image = (
-            ImageMobject(detour_image("resources/classification_comparison_table.png"))
-            .scale(1.5)
-            .next_to(subtitle, DOWN, buff=0.25)
-        )
-        self.play(Write(subtitle))
-
-        self.next_slide()
-        self.play(FadeIn(table_image))
+        self.play(ShowCreation(right_table_border), Write(right_table), Write(right_label))
 
         ## Compared to previous models? (segmentation)
         self.next_slide()
@@ -2060,6 +2075,27 @@ class MainSlide(Slide):
 
         self.next_slide()
         self.play(FadeIn(table_image))
+        ## Compared to previous models? (classification)
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
+        self.play(Write(Text("Compared to previous models? (classification)", **title_text_kws).to_edge(UP)))
+
+        # Subtitle
+        subtitle = Text("Much stronger than previous MIM models, but not quite at DINOv2 yet", **body_text_kws).next_to(
+            title, DOWN, buff=0.5
+        )
+
+        # Create the comparison table as an image since it's quite complex
+        table_image = (
+            ImageMobject(detour_image("resources/classification_comparison_table.png"))
+            .scale(1.5)
+            .next_to(subtitle, DOWN, buff=0.25)
+        )
+        self.play(Write(subtitle))
+
+        self.next_slide()
+        self.play(FadeIn(table_image))
 
         ## pca comparisons
         self.next_slide()
@@ -2067,3 +2103,102 @@ class MainSlide(Slide):
         self.remove(*self.mobjects)
         self.play(Write(Text("PCA of feature maps", **title_text_kws).to_edge(UP)))
         self.play(FadeIn(ImageMobject(detour_image("resources/capi_pca_comparison.png")).scale(1.5).to_edge(DOWN)))
+
+        ## Future perspectives: registers
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
+        self.play(Write(Text("Future perspectives: registers", **title_text_kws).to_edge(UP)))
+        perspectives_text = (
+            VGroup(
+                Text('"Massive activations in LLMs [1]" showed:', **body_text_kws),
+                Text("- Artifacts appear in LLMs too", **body_text_kws).shift(0.5 * RIGHT),
+                Text("- Registers do not need to store global information to work", **body_text_kws).shift(0.5 * RIGHT),
+                Text("→ There must be a simpler fix", **body_text_kws).shift(0.5 * RIGHT),
+                Text("", **body_text_kws),  # Spacer
+                Text(
+                    '"Sigma reparametrisation" [2] showed a link between sharpness of attention maps\nand instabilities in training',
+                    **body_text_kws,
+                ),
+                Text("→ Maybe fixing these artifacts is key", **body_text_kws),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.4)
+            .to_edge(LEFT)
+            # .shift(UP)
+        )
+
+        self.play(Write(perspectives_text[:4]))
+        self.next_slide()
+        self.play(Write(perspectives_text[4:]))
+        citations = (
+            VGroup(
+                Text(
+                    '[1] Sun, Mingjie, et al. "Massive Activations in Large Language Models." COLM 2024.',
+                    **sub_text_kws,
+                ),
+                Text(
+                    '[2] Zhai, Shuangfei, et al. "Stabilizing transformer training by preventing attention entropy collapse." ICML 2023.',
+                    **sub_text_kws,
+                ),
+            )
+            .arrange(DOWN, aligned_edge=RIGHT)
+            .to_edge(DR)
+        )
+        self.play(Write(citations))
+
+        ## Future perspectives: CAPI
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
+        self.play(Write(Text("Future perspectives: CAPI", **title_text_kws).to_edge(UP)))
+        perspectives_text = (
+            VGroup(
+                Text("CAPI loss is very smooth and stable", **body_text_kws),
+                Text("Until it isn't", **body_text_kws),
+                Text("Instabilities appear when training too long or too big", **body_text_kws),
+                Text("→ Understanding this is key to going further with SSL (in my opinion)", **body_text_kws).shift(
+                    0.5 * RIGHT
+                ),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.4)
+            .to_edge(LEFT)
+        )
+        self.play(Write(perspectives_text[:2]))
+        smooth_loss = ImageMobject("resources/capi_loss_smooth.png").scale(0.75)
+        unsmooth_loss = (
+            ImageMobject("resources/capi_loss_unsmooth.png").scale(0.75).next_to(smooth_loss, DOWN, buff=0.5)
+        )
+        self.play(FadeIn(Group(smooth_loss, unsmooth_loss).to_edge(RIGHT).shift(UP)))
+
+        self.next_slide()
+        self.play(Write(perspectives_text[2:]))
+
+        ## Conclusion
+        self.next_slide()
+        self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
+        self.play(Write(Text("Conclusion", **title_text_kws).to_edge(UP)))
+        # Left side content
+        registers_takeaways = (
+            VGroup(
+                Text("- In most transformers, a few tokens take on high norms and large attention", **body_text_kws),
+                Text("- We can displace it to dummy tokens (registers)", **body_text_kws),
+                Text("- There might be a simpler fix", **body_text_kws),
+                Text("- This may help us stabilize transformer training", **body_text_kws, weight=BOLD),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.4)
+            .to_edge(LEFT)
+            .shift(UP)
+        )
+        capi_takeaways = (
+            VGroup(
+                Text("- “Predicting missing data in the latent space” has large potential", **body_text_kws),
+                Text("- But many details are sensitive", **body_text_kws),
+                Text("- There are some instabilities remaining", **body_text_kws),
+                Text("- We still don’t know the right way to do it", **body_text_kws, weight=BOLD),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.4)
+            .next_to(registers_takeaways, DOWN, aligned_edge=LEFT, buff=1)
+        )
+        self.play(Write(registers_takeaways))
+        self.play(Write(capi_takeaways))
