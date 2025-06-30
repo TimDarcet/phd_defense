@@ -1,4 +1,8 @@
 # type: ignore
+import sys
+from pathlib import Path
+
+import numpy as np
 from manimlib import (
     ABC,
     ALL_MODIFIERS,
@@ -295,7 +299,6 @@ from manimlib import (
     OrderedDict,
     ParametricCurve,
     ParametricSurface,
-    Path,
     PGroup,
     PhaseFlow,
     Piano,
@@ -565,38 +568,25 @@ from manimlib import (
     normalize,
     normalize_along_axis,
     not_quite_there,
-    np,
     num_tex_symbols,
-    numbers,
     ode_solution_points,
-    op,
-    os,
     outer_interpolate,
     override_animate,
     overshoot,
     partial_bezier_points,
     partial_quadratic_bezier_points,
     path_along_arc,
-    pathops,
-    pickle,
-    pkg_resources,
-    platform,
     plot_isoline,
     poly_line_length,
     prepare_animation,
     print_family,
     project_along_vector,
-    pygments,
-    pyperclip,
-    pyplot,
     quadratic_bezier_points_for_arc,
     quaternion_conjugate,
     quaternion_from_angle_axis,
     quaternion_mult,
-    random,
     random_bright_color,
     random_color,
-    re,
     recursive_mobject_remove,
     reduce,
     register_font,
@@ -620,12 +610,8 @@ from manimlib import (
     running_start,
     rush_from,
     rush_into,
-    scene,
-    screeninfo,
-    se,
     set_array_by_interpolation,
     set_program_uniform,
-    shader_wrapper,
     shuffled,
     sigmoid,
     slow_into,
@@ -635,43 +621,46 @@ from manimlib import (
     square_to_cube_faces,
     squish_rate_func,
     straight_path,
-    sys,
-    tempfile,
     there_and_back,
     there_and_back_with_pause,
     thick_diagonal,
-    time,
     tri_area,
     turn_animation_into_updater,
-    utils,
-    validators,
     vectorize,
     wiggle,
-    window,
     wraps,
     z_to_vector,
 )
 
-# separate the 2 imports
-tmp = 0
+sys.path.append(str(Path(__file__).parent))
 from manim_slides.slide import Slide, ThreeDSlide
+
+from utils import VideoMobject
 
 assert issubclass(Slide, Scene)
 
 title_text_kws = {
+    "font_size": 54,
+    "fill_color": "#333333",  # Dark grey color
+    "stroke_color": BLACK,
+    "font": "Times New Roman",
+}
+tex_kws = {
     "font_size": 48,
     "fill_color": "#333333",  # Dark grey color
     "stroke_color": BLACK,
 }
 body_text_kws = {
-    "font_size": 24,
+    "font_size": 34,
     "fill_color": "#333333",  # Dark grey color
     "stroke_color": BLACK,
+    "font": "Times New Roman",
 }
 sub_text_kws = {
-    "font_size": 16,
+    "font_size": 20,
     "fill_color": "#888888",  # Dark grey color
     "stroke_color": BLACK,
+    "font": "Times New Roman",
 }
 
 
@@ -699,13 +688,21 @@ class MainSlide(Slide):
         # self.remove(*self.mobjects)
         # # blabla
         # self.next_slide()
+        ## Wait slide
+        # self.add(VideoMobject("resources/dinov2_video_madeleine.mp4"))
 
         ## Title
+        self.next_slide()
         self.play(
-            Write(Text("Self-supervised learning\nof dense visual representations", **title_text_kws).shift(3 * UP))  # type: ignore
+            Write(
+                Text(
+                    "Self-supervised learning\nof dense visual representations", **title_text_kws, alignment="CENTER"
+                ).shift(UP)
+            )  # type: ignore
         )
         self.play(Write(Text("PhD Thesis Defense", **body_text_kws).shift(DOWN * 2)))
         self.play(Write(Text("Timothée Darcet", **body_text_kws).shift(DOWN * 0.5)))
+        # TODO add advisors, jury, meta/inria logos
         self.next_slide()
         ## About me
         self.play(*(FadeOut(mob) for mob in self.mobjects))
@@ -1049,7 +1046,7 @@ class MainSlide(Slide):
         self.play(*(FadeOut(mob) for mob in self.mobjects))
         self.remove(*self.mobjects)
         self.play(Write(Text("The artifacts", **title_text_kws).to_edge(UP)))
-        self.play(FadeIn(ImageMobject(detour_image("resources/yeet_attmaps.png")).scale(0.7).to_edge(DR)))
+        self.play(FadeIn(ImageMobject(detour_image("resources/yeet_attmaps.png")).scale(0.7).to_edge(RIGHT)))
         self.play(
             Write(
                 VGroup(
@@ -1079,6 +1076,7 @@ class MainSlide(Slide):
                 .to_edge(LEFT)
             )
         )
+        # TODO use bigger default font
         self.play(FadeIn(ImageMobject(detour_image("resources/high_norms.png")).scale(0.7).to_edge(DR)))
         ## Where do those outliers appear?
         self.next_slide()
@@ -1280,6 +1278,7 @@ class MainSlide(Slide):
         self.next_slide()
         self.play(Write(caption[2:]))
         self.play(FadeIn(ImageMobject(detour_image("resources/pullfig_registers.png")).scale(0.9).to_edge(DOWN)))
+        # TODO add some intro like general stuff on SSL or deep learning
         ## Bonus: attention maps of registers
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
@@ -1383,7 +1382,7 @@ class MainSlide(Slide):
         # Main equation
         equation = Tex(
             r"\mathcal{L}_{DINOv2}=\mathcal{L}_{DINO}+\mathcal{L}_{iBOT}+\mathcal{L}_{KoLeo}",
-            **title_text_kws,
+            **tex_kws,
         ).center()
 
         self.play(Write(equation))
@@ -1447,7 +1446,7 @@ class MainSlide(Slide):
         left_content = (
             VGroup(
                 Text("- Zhou et al 2021, 6 months after DINO", **body_text_kws),
-                Text("- SOTA until DINOv2 (1.5 years)", **body_text_kws, t2c={"DINOv2": RED}),
+                Text("- SOTA until DINOv2 (1.5 years)", **body_text_kws),
                 Text("", **body_text_kws),  # Empty line for spacing
                 Text("- Necessary for DINOv2", **body_text_kws),
                 Text("- But does not work without DINO!", **body_text_kws, t2c={"does not work without DINO!": RED}),
@@ -1455,7 +1454,6 @@ class MainSlide(Slide):
                 Text(
                     "- Flew under the radar, way less cited than DINOv1/2 or MAE",
                     **body_text_kws,
-                    t2c={"DINOv1/2": RED, "MAE": RED},
                 ),
                 Text("- Not well studied", **body_text_kws, t2c={"Not well studied": RED}),
             )
@@ -1474,7 +1472,7 @@ class MainSlide(Slide):
 
         # Create individual cells with fixed positioning
         # Header row
-        header_texts = ["MIM", "INet-1k", "Im-A", "ADE-20k", "Oxford-M"]
+        header_texts = ["iBOT", "INet-1k", "IN-A", "ADE-20k", "Oxford-M"]
         table_header = VGroup()
         for i, text in enumerate(header_texts):
             cell = Text(text, **body_text_kws)
@@ -1681,7 +1679,7 @@ class MainSlide(Slide):
         left_content = VGroup(Text("Simply doing", **body_text_kws)).to_edge(LEFT).shift(DOWN * 0.5)
 
         # Mathematical formula
-        loss_formula = Tex(r"\mathcal{L} = ||\text{pred} - \text{target}||_2^2", **title_text_kws).next_to(
+        loss_formula = Tex(r"\mathcal{L} = ||\text{pred} - \text{target}||_2^2", **tex_kws).next_to(
             left_content, RIGHT, buff=0.5
         )
 
