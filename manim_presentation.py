@@ -689,11 +689,14 @@ def detour_image(p, thresh=0.8):
 
 
 class MainSlide(Slide):
+    skip_reversing = True
+
     def construct(self):
         # Set background color to beige
         self.camera.background_rgba = [*list(Color("#FAF8EE").rgb), 1.0]
         ## eg slide
         # self.play(*(FadeOut(mob) for mob in self.mobjects))
+        # self.remove(*self.mobjects)
         # # blabla
         # self.next_slide()
 
@@ -706,6 +709,7 @@ class MainSlide(Slide):
         self.next_slide()
         ## About me
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("About me", **title_text_kws).shift(3 * UP)))
         self.play(
             Write(
@@ -721,6 +725,7 @@ class MainSlide(Slide):
         self.next_slide()
         ## Papers
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Papers", **title_text_kws).shift(3 * UP)))
         # Main papers
         main_papers_text = VGroup(
@@ -795,6 +800,7 @@ class MainSlide(Slide):
         ## Registers: title
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Vision transformers need registers", **title_text_kws).shift(UP)))
         self.play(
             Write(
@@ -804,6 +810,7 @@ class MainSlide(Slide):
         ## Primer: Vision transformer (ViT)
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Primer: Vision transformer (ViT)", **title_text_kws).to_edge(UP)))
         self.play(
             Write(
@@ -829,6 +836,7 @@ class MainSlide(Slide):
         ## Primer: attention maps
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Primer: attention maps", **title_text_kws).to_edge(UP)))
         self_attn_blk = VGroup(
             Rectangle(
@@ -1039,6 +1047,7 @@ class MainSlide(Slide):
         ## The artifacts
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("The artifacts", **title_text_kws).to_edge(UP)))
         self.play(FadeIn(ImageMobject(detour_image("resources/yeet_attmaps.png")).scale(0.7).to_edge(DR)))
         self.play(
@@ -1056,6 +1065,7 @@ class MainSlide(Slide):
         ## The norm outliers
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("The norm outliers", **title_text_kws).to_edge(UP)))
         self.play(
             Write(
@@ -1073,6 +1083,7 @@ class MainSlide(Slide):
         ## Where do those outliers appear?
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("When do those outliers appear?", **title_text_kws).to_edge(UP)))
         plot_1 = ImageMobject(detour_image("resources/norm_along_layers.png")).scale(0.7).to_edge(DL).shift(UP)
         caption_1 = (
@@ -1102,6 +1113,7 @@ class MainSlide(Slide):
         ## Where do those outliers appear?
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Where do those outliers appear?", **title_text_kws).to_edge(UP)))
         examples = ImageMobject(detour_image("resources/small_attmap.png")).to_edge(RIGHT).shift(UP)
         cos_sim_plot = ImageMobject(detour_image("resources/cosine_similarities.png"))
@@ -1123,6 +1135,7 @@ class MainSlide(Slide):
         ## What information do the high-norm tokens hold?
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(title := Text("What information do the high-norm tokens hold?", **title_text_kws).to_edge(UP)))
         self.play(Write(Text("(Compared to other patches)", **body_text_kws).next_to(title, DOWN)))
         self.play(
@@ -1169,6 +1182,7 @@ class MainSlide(Slide):
         self.next_slide()
         ## The hypothesis
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         # self.play(Write(Text("The hypothesis", **title_text_kws).to_edge(UP)))
         self.play(
             Write(
@@ -1196,6 +1210,7 @@ class MainSlide(Slide):
         ## The fix: Registers
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("The fix: Registers", **title_text_kws).to_edge(UP)))
         self.play(
             Write(
@@ -1214,6 +1229,7 @@ class MainSlide(Slide):
         ## Does it work? (yes)
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Does it work?", **title_text_kws).to_edge(UP)))
         self.play(
             Write(
@@ -1240,6 +1256,7 @@ class MainSlide(Slide):
         ## What about supervised? And CLIP?
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(title := Text("What about supervised? And CLIP?", **title_text_kws).to_edge(UP)))
         caption = (
             VGroup(
@@ -1266,6 +1283,7 @@ class MainSlide(Slide):
         ## Bonus: attention maps of registers
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Bonus: attention maps of registers", **title_text_kws).to_edge(UP)))
         reg_attmaps = ImageMobject(detour_image("resources/registers_attmaps.png")).scale(0.6).to_edge(DOWN)
         caption = VGroup(
@@ -1283,6 +1301,7 @@ class MainSlide(Slide):
         ## CAPI: title
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(
             Write(
                 Text(
@@ -1303,6 +1322,7 @@ class MainSlide(Slide):
         ## SSL for visual representations works!
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("SSL for visual representations works!", **title_text_kws).to_edge(UP)))
 
         # Left side content
@@ -1335,6 +1355,7 @@ class MainSlide(Slide):
         ## But: DINOv2 limitations
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("But:", **title_text_kws).to_edge(UP).to_edge(LEFT)))
 
         # Left side bullet points
@@ -1356,6 +1377,7 @@ class MainSlide(Slide):
         ## Let's simplify DINOv2!
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Let's simplify DINOv2!", **title_text_kws).to_edge(UP)))
 
         # Main equation
@@ -1418,6 +1440,7 @@ class MainSlide(Slide):
         ## iBOT
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("iBOT", **title_text_kws).to_edge(UP)))
 
         # Left side bullet points
@@ -1497,6 +1520,7 @@ class MainSlide(Slide):
         ## Masked Image Modeling
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(title := Text("Masked Image Modeling", **title_text_kws).to_edge(UP)))
 
         # Main description box
@@ -1519,6 +1543,7 @@ class MainSlide(Slide):
         ## 1. Target representation: (a) pixel values
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("1. Target representation: (a) pixel values", **title_text_kws).to_edge(UP)))
 
         # Left side content
@@ -1556,6 +1581,7 @@ class MainSlide(Slide):
         ## 1. Target representation: (b) pretrained model
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("1. Target representation: (b) pretrained model", **title_text_kws).to_edge(UP)))
 
         # Left side content
@@ -1589,6 +1615,7 @@ class MainSlide(Slide):
         ## Aside: dBOT
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Aside: dBOT", **title_text_kws).to_edge(UP)))
 
         # Main steps
@@ -1618,6 +1645,7 @@ class MainSlide(Slide):
         ## 1. Target representation: (c) online model
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("1. Target representation: (c) online model", **title_text_kws).to_edge(UP)))
 
         # Left side content
@@ -1646,6 +1674,7 @@ class MainSlide(Slide):
         ## 2. Loss formulation: (a) direct loss
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("2. Loss formulation: (a) direct loss", **title_text_kws).to_edge(UP)))
 
         # Left side content with the loss description
@@ -1664,6 +1693,7 @@ class MainSlide(Slide):
         ## 2. Loss formulation: (b) loss after MLP
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("2. Loss formulation: (b) loss after MLP", **title_text_kws).to_edge(UP)))
 
         # Left side content
@@ -1702,6 +1732,7 @@ class MainSlide(Slide):
         ## 2. Loss formulation: (c) loss after clustering
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("2. Loss formulation: (c) loss after clustering", **title_text_kws).to_edge(UP)))
 
         # Main proposition
@@ -1740,6 +1771,7 @@ class MainSlide(Slide):
         ## 3. Predictor architecture
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("3. Predictor architecture", **title_text_kws).to_edge(UP)))
 
         # Three columns layout
@@ -1790,6 +1822,7 @@ class MainSlide(Slide):
         ## Are those the right choices?
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Are those the right choices?", **title_text_kws).to_edge(UP)))
 
         # Subtitle
@@ -1891,6 +1924,7 @@ class MainSlide(Slide):
         ## Some other sensitive hyperparameters
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Some other sensitive hyperparameters", **title_text_kws).to_edge(UP)))
 
         # Subtitle
@@ -1983,6 +2017,7 @@ class MainSlide(Slide):
         ## Compared to previous models? (classification)
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Compared to previous models? (classification)", **title_text_kws).to_edge(UP)))
 
         # Subtitle
@@ -2004,6 +2039,7 @@ class MainSlide(Slide):
         ## Compared to previous models? (segmentation)
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("Compared to previous models? (segmentation)", **title_text_kws).to_edge(UP)))
 
         # Subtitle
@@ -2030,5 +2066,6 @@ class MainSlide(Slide):
         ## pca comparisons
         self.next_slide()
         self.play(*(FadeOut(mob) for mob in self.mobjects))
+        self.remove(*self.mobjects)
         self.play(Write(Text("PCA of feature maps", **title_text_kws).to_edge(UP)))
         self.play(FadeIn(ImageMobject(detour_image("resources/capi_pca_comparison.png")).scale(1.5).to_edge(DOWN)))
