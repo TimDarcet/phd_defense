@@ -677,9 +677,7 @@ def detour_image(p, thresh=0.8):
     return p + ".detoured.png"
 
 
-# TODO add advisors, jury, meta/inria logos (title slide)
 # TODO add some intro like general stuff on SSL or deep learning
-# TODO remove "about me"
 # TODO do a dry run
 # TODO use viridis colormap (attention animation)
 # TODO thank you slide? With lab pictures? Tons of pictures?
@@ -710,32 +708,50 @@ class MainSlide(Slide):
                 ).shift(UP)
             )  # type: ignore
         )
-        self.play(Write(Text("PhD Thesis Defense", **body_text_kws).shift(DOWN * 2)))
-        self.play(Write(Text("Timothée Darcet", **body_text_kws).shift(DOWN * 0.5)))
-        self.next_slide()
-        ## About me
-        self.play(*(FadeOut(mob) for mob in self.mobjects))
-        self.remove(*self.mobjects)
-        self.play(Write(Text("About me", **title_text_kws).to_edge(UP)))
+        self.play(Write(Text("PhD Thesis Defense", **body_text_kws).shift(DOWN * 1)))
+        self.play(
+            Write(Text("Advised by: Julien Mairal, Piotr Bojanowski, Maxime Oquab", **body_text_kws).shift(DOWN * 1.5))
+        )
+        self.play(Write(Text("Timothée Darcet", **body_text_kws).shift(DOWN * 2)))
+        self.play(
+            Write(SVGMobject("resources/inria_logo_rouge.svg", stroke_color=RED, stroke_width=2).scale(0.3).to_edge(DL))
+        )
         self.play(
             Write(
-                VGroup(
-                    Text("I am a PhD student at Inria (Grenoble) and Meta", **body_text_kws),
-                    Text(
-                        "Advised by Maxime Oquab, Piotr Bojanowski and Julien Mairal (+ formerly Armand Joulin)",
-                        **body_text_kws,
-                    ),
-                    Text(
-                        "Previously: master's at ENS Paris-Saclay (MVA) and master's at Ecole polytechnique",
-                        **body_text_kws,
-                    ),
-                    Text("I worked on: self-supervised learning, vision transformers", **body_text_kws),
+                SVGMobject(
+                    "resources/Meta_Platforms_Inc._logo.svg",
+                    fill_color="#1A17DD",
+                    stroke_color="#1A17DD",
+                    stroke_width=2,
                 )
-                .arrange(DOWN, buff=0.5, aligned_edge=LEFT)
-                .shift(DOWN * 0.5)
+                .scale(0.2)
+                .to_edge(DR)
             )
         )
         self.next_slide()
+        # ## About me
+        # self.play(*(FadeOut(mob) for mob in self.mobjects))
+        # self.remove(*self.mobjects)
+        # self.play(Write(Text("About me", **title_text_kws).to_edge(UP)))
+        # self.play(
+        #     Write(
+        #         VGroup(
+        #             Text("I am a PhD student at Inria (Grenoble) and Meta", **body_text_kws),
+        #             Text(
+        #                 "Advised by Maxime Oquab, Piotr Bojanowski and Julien Mairal (+ formerly Armand Joulin)",
+        #                 **body_text_kws,
+        #             ),
+        #             Text(
+        #                 "Previously: master's at ENS Paris-Saclay (MVA) and master's at Ecole polytechnique",
+        #                 **body_text_kws,
+        #             ),
+        #             Text("I worked on: self-supervised learning, vision transformers", **body_text_kws),
+        #         )
+        #         .arrange(DOWN, buff=0.5, aligned_edge=LEFT)
+        #         .shift(DOWN * 0.5)
+        #     )
+        # )
+        # self.next_slide()
         ## Papers
         self.play(*(FadeOut(mob) for mob in self.mobjects))
         self.remove(*self.mobjects)
