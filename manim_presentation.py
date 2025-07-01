@@ -941,9 +941,9 @@ class MainSlide(Slide):
         self.play(ShowCreation(blk_diagram))
         ## attention lines
         recipe = VGroup(
-            Text("- Compute the attention scores from [CLS]to patches", **body_text_kws),
+            Text("- Compute the attention scores from [CLS] to patches", **body_text_kws),
             Text("- Reshape into a heatmap", **body_text_kws),
-            Text("- Get an interpretable map of where the [CLS]token is “looking”", **body_text_kws),
+            Text("- Get an interpretable map of where the [CLS] token is “looking”", **body_text_kws),
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.4)
         slide_text = (
             VGroup(
@@ -1129,7 +1129,7 @@ class MainSlide(Slide):
         self.play(Write(caption_2), FadeIn(plot_2))
 
         self.next_slide()
-        plot_3 = ImageMobject(detour_image("resources/norm_along_iters.png")).scale(0.7).to_edge(DR).shift(UP)
+        plot_3 = ImageMobject(detour_image("resources/norm_along_params.png")).scale(0.7).to_edge(DR).shift(UP)
         caption_3 = (
             Text("In which models?\n>= 300M parameters (ViT-L)", **body_text_kws, alignment="CENTER")
             .next_to(plot_3, UP)
